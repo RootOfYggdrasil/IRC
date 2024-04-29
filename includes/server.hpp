@@ -15,10 +15,17 @@
 # include <sys/epoll.h> 
 
 # include "Client.hpp"
+# include "Command.hpp"
+# include "Channel.hpp"
+
+class Client;
 
 class Server {
 
 	private:
+		int const _port;
+		std::string const _password		
+		std::vector<Client> clients;
 	
 	public:
 		Server(void);
