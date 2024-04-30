@@ -5,3 +5,22 @@ Settaggio
 Parser in entrata (facile)
 Parser in uscita (complesso)
 Conversione dell output del server al client (bisogna inviare e formattare in modo particolare il segnale)
+
+Creare struttura:
+-Canali
+  -client (Permessi client?)
+  -password
+  -data creation
+  -Modes
+  -topic
+  -name
+-Client
+  -SU
+  -Password
+  -nick (also user?)
+  -fd
+  -ipaddr
+  -logedin
+-Commands
+-Modalita di comunicazione tra server e client
+-Modalita di chiamata dei comandi dal server
