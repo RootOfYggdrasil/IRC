@@ -14,25 +14,30 @@
 # include <arpa/inet.h> 
 # include <sys/epoll.h> 
 
-# include "Client.hpp"
-# include "Command.hpp"
-# include "Channel.hpp"
+//# include "Client.hpp"
+//# include "Command.hpp"
+//# include "Channel.hpp"
 
-class Client;
+//class Client;
 
 class Server {
 
 	private:
-		int const _port;
-		std::string const _password		
-		std::vector<Client> clients;
+		int 	_port;
+		int 	_socket;
+		std::string	_password;
+		//std::vector<Client> clients;
 	
 	public:
 		Server(void);
 		Server(const Server &copy);
 		Server &operator=(const Server &op);
-		~Server(void);
+		~Server();
+		Server(int port, std::string password);
+		void Start();
 
+		int getPort() const;
+		int getSocket() const;
 }; 
 
 

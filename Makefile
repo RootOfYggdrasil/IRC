@@ -13,21 +13,19 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 RM = rm -f
 
+SRC_PATH = sources/
 SRC =	main \
-		$(SRC_PATH)/Channel \
-		$(SRC_PATH)/Client \
-		$(SRC_PATH)/Command \
 		$(SRC_PATH)/Server
 
-SRC_PATH = sources/
 EXTENSION = .cpp
 SRCFC	= $(addsuffix $(EXTENSION), $(SRC))
 
-OBJ = $(SRC:.cpp=.o)
+OBJ = $(SRCFC:.cpp=.o)
 
 $(NAME): $(OBJ)
-	@echo "$(C)compiling $(NAME) $(DEF_COLOR)"
-	$(CC) $(OBJ) $(CFLAGS) -o $(NAME)
+	@echo "$(OBJ)"
+	@echo "$(C)Compiling $(NAME) $(DEF_COLOR)"
+	$(CC) $(OBJ) $(CFLAGS) -o $(NAME) -I includes/
 	@echo "'${G}all${DEF_COLOR}' for mandatory ${NAME} executed successfully!"
 
 all: $(NAME)
