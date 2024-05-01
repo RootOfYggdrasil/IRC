@@ -11,11 +11,13 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	Server server(atoi(argv[1]), argv[2]);
-	server.Start();
-	while (true)
+	try
 	{
-		std::cout << server.getPort() << std::endl;
-		std::cout << server.getSocket() << std::endl;
-		read(0, NULL, 1);
+		server.Initialize();
+		server.Run();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
 	}
 }
