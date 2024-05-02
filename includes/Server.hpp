@@ -39,7 +39,7 @@ class Server {
 		//std::vector<Client> clients;
 		//Server(const Server &copy);
 		//Server &operator=(const Server &op);
-		Server(void);
+		Server(void);// ha senso? Non credo
 	public:
 		~Server();
 		Server(int port, std::string password);
