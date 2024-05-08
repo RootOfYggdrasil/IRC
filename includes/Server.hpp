@@ -14,6 +14,8 @@
 # include <arpa/inet.h> 
 # include <sys/epoll.h> 
 # include <string.h>
+# include <netdb.h>
+# include <stdio.h>
 
 //# include "Client.hpp"
 //# include "Command.hpp"
@@ -24,30 +26,40 @@
 class Server {
 
 	private:
-		int 	_port;
-		int 	_socket;
-		int 	_epollFD;
-		bool	_isRunning;
-		bool	_isInitialized;
+		in_port_t 	_port;
+		int 		_serverSocket;
+		int 		_epollFD;
+		bool		_isRunning;
+		bool		_isInitialized;
+		static bool signal;
 		std::string	_ip;
 		std::string	_password;
 		struct sockaddr_in _addr;
-		struct epoll_event _events[1000];
+		struct epoll_event _ev;
+		struct epoll_event _events[100];
+		struct epoll_event _runningEvent;
 
 
 
 		//std::vector<Client> clients;
-		//Server(const Server &copy);
-		//Server &operator=(const Server &op);
 		Server(void);// ha senso? Non credo
 	public:
 		~Server();
 		Server(int port, std::string password);
-		void Initialize();
+		Server(const Server &copy);
+		Server &operator=(const Server &op);
+		void InitializeServer();
 		void Run();
 
 		int getPort() const;
 		int getSocket() const;
+		std::string getPw() const;
+
+		void setPort(const in_port_t &port);
+		void setSocket(int _serverSocketFd);
+		void setPw(const std::string &pw);
+		static void checkSignal(int signal);
+		void fdClose();
 }; 
 
 
