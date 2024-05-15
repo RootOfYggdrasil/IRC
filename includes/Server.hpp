@@ -16,10 +16,12 @@
 # include <string.h>
 # include <netdb.h>
 # include <stdio.h>
+# include <map>
 
-//# include "Client.hpp"
-//# include "Command.hpp"
-//# include "Channel.hpp"
+
+# include "Client.hpp"
+# include "Command.hpp"
+# include "Channel.hpp"
 
 //class Client;
 
@@ -40,9 +42,10 @@ class Server {
 		struct epoll_event _runningEvent;
 
 
-
-		//std::vector<Client> clients;
-		Server(void);// ha senso? Non credo
+		std::map <std::string, Client *>	_clients;
+		std::map <std::string, Channel *>	_channels;
+		std::map <std::string, Command *>	_commands;
+		
 	public:
 		~Server();
 		Server(int port, std::string password);

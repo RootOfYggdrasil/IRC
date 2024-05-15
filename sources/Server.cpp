@@ -3,10 +3,9 @@
 
 char hostname[1024]{};
 
-Server::Server(void) : _port(0), _serverSocket(0), _password("") { }
-
 Server::Server(int port, std::string password) : _port(port), _serverSocket(0), _password(password) 
 {
+	_clients[]
 }
 
 Server::Server(Server const &src) 
@@ -114,7 +113,6 @@ void	Server::Run(void)
 					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, clientSocket, &this->_ev) == -1)
 						throw std::runtime_error("ERROR: epoll ctl failed");
 					std::cout << "New Client Connected: " << clientSocket << std::endl;
-
 				}
 				else
 				{

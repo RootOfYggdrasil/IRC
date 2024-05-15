@@ -6,10 +6,17 @@
 # include "Server.hpp"
 # include "Channel.hpp"
 # include "Command.hpp"
+# include <vector>
+
 
 class Client {
 	private:
+		int				_clientFd;
+		std::string		_nickname;
+		std::string		_user;
+		bool			_isLogged;
 
+		std::map <std::string, Channel *>	_joinedChannel;
 
 	public:
 		Client(void);
