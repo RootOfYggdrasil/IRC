@@ -43,8 +43,9 @@ bool Server::signal = false;
 void Server::checkSignal(int signal)
 {
 	(void)signal;
-	std::cout << std::endl << "Signal recieved" << std::endl;
+	std::cout << std::endl << "Signal received" << std::endl;
 	Server::signal = true;
+	exit(1);
 }
 
 void	Server::InitializeServer(void)
@@ -92,13 +93,15 @@ void	Server::Run(void)
 	while (this->_isRunning)
 	{
 		int	eventNumber = epoll_wait(this->_epollFD, this->_events, 100, 0); //check non blocking events(0)
-		if(eventNumber != -1)
+		if(eventNumber > 0)
 		{
+			std::cout << "Event Detected! Nr: " << eventNumber << std::endl;
 			for(int i = 0; i < eventNumber; i++)
 			{
 				if(this->_events[i].data.fd == this->_serverSocket) //if the event is on the server socket
 				{
 					int clientSocket = accept(this->_serverSocket, NULL, NULL);
+					
 					if(clientSocket == -1)
 						throw std::runtime_error("ERROR: accept failed");
 					if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
@@ -111,6 +114,7 @@ void	Server::Run(void)
 					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, clientSocket, &this->_ev) == -1)
 						throw std::runtime_error("ERROR: epoll ctl failed");
 					std::cout << "New Client Connected: " << clientSocket << std::endl;
+
 				}
 				else
 				{
@@ -118,8 +122,6 @@ void	Server::Run(void)
 				}
 			}
 		}
-		
-		
 		//detect new events
 		//Accept(): extracts the first connection request on the queue of pending connections 
 		//for the listening socket, sockfd, creates a new connected socket, and returns a new
@@ -127,7 +129,6 @@ void	Server::Run(void)
 		// between client and server, and they are ready to transfer data.
 		//Receive();
 		//Send();
-		std::cout << "Event Detected! Nr: " << eventNumber << std::endl;
 	}
 	//Close();
 }
