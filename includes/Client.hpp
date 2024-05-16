@@ -20,9 +20,11 @@ class Client {
 
 	public:
 		Client(void);
-		Client(const Client &copy);
+		Client(int fd);
 		Client &operator=(const Client &op);
 		~Client(void);
+
+		const int &getFd() const;
 
 }; 
 

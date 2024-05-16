@@ -16,7 +16,10 @@
 # include <string.h>
 # include <netdb.h>
 # include <stdio.h>
+# include <list>
 # include <map>
+# include <vector>
+# include <algorithm>
 
 
 # include "Client.hpp"
@@ -29,28 +32,27 @@ class Server {
 
 	private:
 		in_port_t 	_port;
+		std::string	_password;
 		int 		_serverSocket;
 		int 		_epollFD;
+		unsigned long int _fdCounter;
 		bool		_isRunning;
 		bool		_isInitialized;
 		static bool signal;
-		std::string	_ip;
-		std::string	_password;
+		//std::string	_ip;
 		struct sockaddr_in _addr;
 		struct epoll_event _ev;
-		struct epoll_event _events[100];
+		struct epoll_event _maxEvents[1024];
 		struct epoll_event _runningEvent;
 
-
-		std::map <std::string, Client *>	_clients;
-		std::map <std::string, Channel *>	_channels;
-		std::map <std::string, Command *>	_commands;
+		std::list<Client*> _newClient_toRegister;
+		std::map <std::string, Client*>	_clients;
+		std::map <std::string, Channel*> _channels;
+		std::map <std::string, Command>	_commands;
 		
 	public:
-		~Server();
 		Server(int port, std::string password);
-		Server(const Server &copy);
-		Server &operator=(const Server &op);
+		~Server();
 		void InitializeServer();
 		void Run();
 
@@ -61,6 +63,9 @@ class Server {
 		void setPort(const in_port_t &port);
 		void setSocket(int _serverSocketFd);
 		void setPw(const std::string &pw);
+
+		Client *getClientComparingfFd(int fd) const;
+
 		static void checkSignal(int signal);
 		void fdClose();
 }; 

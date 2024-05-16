@@ -47,6 +47,36 @@ void Server::checkSignal(int signal)
 	exit(1);
 }
 
+/*cerca un Client con un fd specificato prima nella mappa _clients e poi nella lista _newClient_toRegister. 
+Se trova il client, restituisce il puntatore a quell'oggetto Client.
+Se non trova nessun client con l'fd specificato, restituisce NULL.*/
+Client* Server::getClientComparingfFd(int fd) const
+{
+    // Lambda function to compare fd
+    auto compareFd = [fd](const Client* client) {
+        return client && client->getFd() == fd;
+    };
+
+    // Search in the _clients map
+    auto it = std::find_if(_clients.begin(), _clients.end(),
+        [&compareFd](const std::pair<std::string, Client*>& pair) {
+            return compareFd(pair.second);
+        });
+    
+    if (it != _clients.end()) {
+        return it->second;
+    }
+
+    // Search in the _clientsNotRegistered list
+    auto lit = std::find_if(_newClient_toRegister.begin(), _newClient_toRegister.end(), compareFd);
+    
+    if (lit != _newClient_toRegister.end()) {
+        return *lit;
+    }
+
+    return nullptr;
+}
+
 void	Server::InitializeServer(void)
 {
 	int e = 1;
@@ -72,10 +102,12 @@ void	Server::InitializeServer(void)
 	this->_epollFD = epoll_create1(0);
 	if(this->_epollFD == -1)
 		throw std::runtime_error("ERROR: epoll creation failed");	
+	memset(&_ev, 0, sizeof(epoll_event));
 	this->_ev.events = EPOLLIN;
 	this->_ev.data.fd = this->_serverSocket;
 	if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, this->_serverSocket, &this->_ev) == -1)
 		throw std::runtime_error("ERROR: epoll ctl failed");
+	_fdCounter++;	
 
 	this->_isInitialized = true;
 	std::cout << "Server Initialized on port " << this->_port << std::endl;
@@ -85,38 +117,64 @@ void	Server::InitializeServer(void)
 
 void	Server::Run(void)
 {
+	_fdCounter = 1;
+
 	if (!this->_isInitialized)
 		throw std::runtime_error("ERROR: server not initialized");
 	this->_isRunning = true;
 	std::cout << "Server is UP" << std::endl;
 	while (this->_isRunning)
 	{
-		int	eventNumber = epoll_wait(this->_epollFD, this->_events, 100, 0); //check non blocking events(0)
+		int	eventNumber = epoll_wait(this->_epollFD, this->_maxEvents, 100, 0); //check non blocking events(0)
 		if(eventNumber > 0)
 		{
 			std::cout << "Event Detected! Nr: " << eventNumber << std::endl;
 			for(int i = 0; i < eventNumber; i++)
 			{
-				if(this->_events[i].data.fd == this->_serverSocket) //if the event is on the server socket
+				//if the event is on the server socket
+				if(this->_maxEvents[i].data.fd == this->_serverSocket) 
 				{
-					int clientSocket = accept(this->_serverSocket, NULL, NULL);
+					int newFdSocket = accept(this->_serverSocket, NULL, NULL);
 					
-					if(clientSocket == -1)
-						throw std::runtime_error("ERROR: accept failed");
-					if(fcntl(clientSocket, F_SETFL, O_NONBLOCK) == -1)
+					if(_fdCounter >= 1024 - 1)
 					{
-						close(clientSocket);
-						throw std::runtime_error("ERROR: fcntl failed");
+						send(newFdSocket, ":ircserv QUIT :The server is full!\r\n", 37, MSG_DONTWAIT | MSG_NOSIGNAL);
+						send(newFdSocket, "", 0, MSG_DONTWAIT | MSG_NOSIGNAL);
+						close(newFdSocket);
+						continue;
 					}
+					if(newFdSocket == -1)
+						throw std::runtime_error("ERROR: accept failed");
+					if(fcntl(newFdSocket, F_SETFL, O_NONBLOCK) == -1)
+						throw std::runtime_error("ERROR: fcntl failed");
 					this->_ev.events = EPOLLIN | EPOLLET;
-					this->_ev.data.fd = clientSocket;
-					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, clientSocket, &this->_ev) == -1)
+					this->_ev.data.fd = newFdSocket;
+					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, newFdSocket, &this->_ev) == -1)
 						throw std::runtime_error("ERROR: epoll ctl failed");
-					std::cout << "New Client Connected: " << clientSocket << std::endl;
+					std::cout << "New Client Connected: " << newFdSocket << std::endl;
+					_fdCounter++;
+					
+					//fd in non registered client list
+					Client* newClient = new Client(newFdSocket);
+					if (newClient != 0)
+					{
+						std::string	RPL_INFO = ":ircserv INFO :Connected to 42IRC server!\r\n";
+						send(newFdSocket, RPL_INFO.c_str(), RPL_INFO.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+						_newClient_toRegister.push_back(newClient);
+					}
 				}
+				// else if the event is NOT on the server socket
 				else
 				{
-					
+					char buff[512];
+
+					Client* newCL = NULL;
+					int clientFdSocket = _maxEvents[i].data.fd;
+					newCL = getClientComparingfFd(clientFdSocket);
+					memset(buff, 0, sizeof(buff));
+
+					///RECV().....
+
 				}
 			}
 		}
