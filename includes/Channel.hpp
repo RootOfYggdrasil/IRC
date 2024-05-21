@@ -9,13 +9,33 @@
 
 class Channel {
 	private:
+		std::string	_name;
+		std::string	_password;
+		std::string	_topic;
+		std::string	_creationTime;
 
+		bool		_inviteOnly;
+		bool		_topicRestrict;
+
+		int			_clientsMax;
+
+		//clients
+		//operatori
 
 	public:
-		Channel(void);
-		Channel(const Channel &copy);
+		Channel();
 		Channel &operator=(const Channel &op);
-		~Channel(void);
+		~Channel();
+
+		bool	getInviteOnly();
+		bool	getTopicRestrict();
+		int		getClientsMax();
+		void	setTopic(std::string topic);
+		void	setTopicRestrict(bool topicRestrict);
+		void	setInviteOnly(bool inviteOnly);
+		void	setClientsMax(int clientsMax);
+
+		
 
 }; 
 
