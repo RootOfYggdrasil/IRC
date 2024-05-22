@@ -13,4 +13,9 @@ Client& Client::operator=(const Client &op)
 
 Client::~Client(){}
 
-const int &Client::getFd() const {return _clientFd;}
+const int &Client::getFd() const {return this->_clientFd;}
+bool Client::getIsLogged() const {return this->_isLogged;}
+void  Client::getBuffer() const {return this->_buffer;}
+
+void Client::setIsLogged(bool logged){_isLogged = logged;}
+void Client::setBuffer(std::string &buffer){this->_buffer = buffer;}

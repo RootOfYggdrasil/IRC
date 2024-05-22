@@ -47,6 +47,25 @@ void Server::checkSignal(int signal)
 	exit(1);
 }
 
+Client *Server::getClient(const std::string &nickname) const
+{
+	Client *cl = NULL;
+	std::map<std::string, Client*>::const_iterator it = _clients.find(nickname);
+	if (it != _clients.end())
+		cl = it->second;
+	return cl;
+}
+
+Channel *Server::getChannel(const std::string &channelName) const
+{
+	//da vedere se ci sono indicazioni da rispettare es toLower
+	Channel *ch = NULL;
+	std::map<std::string, Channel*>::const_iterator it = _channels.find(channelName);
+	if (it != _channels.end())
+		ch = it->second;
+	return ch;
+}
+
 /*cerca un Client con un fd specificato prima nella mappa _clients e poi nella lista _newClient_toRegister. 
 Se trova il client, restituisce il puntatore a quell'oggetto Client.
 Se non trova nessun client con l'fd specificato, restituisce NULL.*/
@@ -75,6 +94,80 @@ Client* Server::getClientComparingfFd(int fd) const
     }
 
     return nullptr;
+}
+
+std::vector<std::string> splitCmd(std::string &line)
+{
+	std::vector<std::string> commands;
+	std::string cmd;
+	std::istringstream iss(line);
+	while (std::getline(iss, cmd, ' '))
+	{
+		if (parma[0] == ':')
+		{
+			std::string last;
+			std::getline(iss, last, (char)EOF);
+			cmd.erase(0, 1);
+			if (last.size() + cmd.size())
+			{
+				if (!cmd.empty())
+					commands.push_back(cmd + " " + last);
+				else
+					commands.push_back(cmd);
+			}
+		}
+		else
+			commands.push_back(cmd);
+	}
+	if (commands.size())
+	{
+		size_t pos = commands[commands.size() - 2].find("\r\n");
+		while (pos != std::string::npos)
+		{
+			commands[commands.size() - 2].erase(pos, 1);
+			pos = commands[commands.size() - 2].find("\r\n");
+		}
+	}
+	return commands;
+}
+
+void Server::handleCommand(Client &client, std::vector<std::string> commands)
+{
+	std::srting cmd = commands[0];
+	std::map<std::string, Command>::iterator it = this->_commands.find(cmd);
+
+	if (!commands.size())
+		return;
+	commands.erase(commands.begin());
+	if (it != this->_commands.end())
+	{
+		this->_commands[cmd].execute(client, commands);
+	}
+}
+
+void Server::handleMessage(Client &client, const char *msg)
+{
+	std::string message = msg;
+	size_t pos = message.find("\r\n");
+	if (pos != std::string::npos)
+		message = message.substr(0, pos);
+	message = client.getBuffer() + message;
+	client.setBuffer("");
+	while (pos != std::string::npos)
+	{
+		std::string line;
+		std::isstringstrem iss(message);
+		std::getline(iss, line);
+		std::cout << "Line: " << line << std::endl;
+		std::vector<std::string> commands = splitCmd(line);
+		if (client.getIsLogged())
+			handleCommand(client, commands);
+		else 
+		//DA FARE 
+			registerNotLogged(client, commands);
+		message.erase(0, pos + 1);
+	}
+	client.setBuffer(message);
 }
 
 void	Server::InitializeServer(void)
@@ -172,8 +265,31 @@ void	Server::Run(void)
 					int clientFdSocket = _maxEvents[i].data.fd;
 					newCL = getClientComparingfFd(clientFdSocket);
 					memset(buff, 0, sizeof(buff));
+					int bytes = recv(clientFdSocket, buff, sizeof(buff), 0);
+					if(bytes == -1)
+						throw std::runtime_error("ERROR: recv failed");
+					else if(bytes == 0)
+					{
+						std::cout << "Client <"	<< clientFdSocket << "> Disconnected" << std::endl;
+						close(clientFdSocket);
+						epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, clientFdSocket, NULL);
+						_fdCounter--;
+						//remove client from _clients ma
+						if (newCL != NULL)
+						{
+							//verificare se fare funzione apposita che elimini anche dal channel
+							_clients.erase(newCL->getNickname());
+							delete newCL;
+						}
+					else
+					{
+						std::string message = buff;
+						std::cout << "Message from client <" << clientFdSocket << ">: " << message << std::endl;
+						handleMessage(newCL, message);
+					}
+					
+		
 
-					///RECV().....
 
 				}
 			}

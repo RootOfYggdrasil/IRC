@@ -14,9 +14,10 @@ class Client {
 		int				_clientFd;
 		std::string		_nickname;
 		std::string		_user;
+		std::string		_buffer;
 		bool			_isLogged;
 
-		std::map <std::string, Channel *>	_joinedChannel;
+		std::map <std::string, Channel *>	_connectedOnChannel;
 
 	public:
 		Client(void);
@@ -25,6 +26,14 @@ class Client {
 		~Client(void);
 
 		const int &getFd() const;
+		void getIsLogged() const;
+		std::string getBuffer() const;
+		
+		void setIsLogged(bool logged);
+		void setBuffer(std::string &buffer);
+
+		void deleteClfromChannel(Server &server);
+
 
 }; 
 

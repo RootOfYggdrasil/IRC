@@ -65,6 +65,12 @@ class Server {
 		void setPw(const std::string &pw);
 
 		Client *getClientComparingfFd(int fd) const;
+		Client *getClient(const std::string &nickname) const;
+		Channel *getChannel(const std::string &channelName) const;	
+
+		void handleMessage(Client *client, const char *msg);
+		std::vector<std::string> splitCmd(std::string &line);
+		void handleCommand(Client &client, std::vector<std::string> commands);
 
 		static void checkSignal(int signal);
 		void fdClose();
