@@ -140,8 +140,8 @@ void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 		return;
 	pVector.erase(pVector.begin());
 	if (it != this->_commands.end())
-	{.
-		this->_commands[cmd](*this, client, pVector);
+	{
+		this->_commands[cmd](*this, client, pVector); ///PROBLEMA NON LO PRENDE COSI
 	}
 }
 
@@ -200,7 +200,6 @@ void	Server::InitializeServer(void)
 	this->_ev.data.fd = this->_serverSocket;
 	if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, this->_serverSocket, &this->_ev) == -1)
 		throw std::runtime_error("ERROR: epoll ctl failed");
-	_fdCounter++;	
 	_fdCounter++;	
 
 	this->_isInitialized = true;
