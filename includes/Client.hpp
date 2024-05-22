@@ -23,6 +23,7 @@ class Client {
 	public:
 		Client(void);
 		Client(int fd);
+		Client(int fd);
 		Client &operator=(const Client &op);
 		~Client(void);
 

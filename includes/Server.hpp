@@ -17,7 +17,10 @@
 # include <netdb.h>
 # include <stdio.h>
 # include <list>
+# include <list>
 # include <map>
+# include <vector>
+# include <algorithm>
 # include <vector>
 # include <algorithm>
 
@@ -33,15 +36,19 @@ class Server {
 	private:
 		in_port_t 	_port;
 		std::string	_password;
+		std::string	_password;
 		int 		_serverSocket;
 		int 		_epollFD;
+		unsigned long int _fdCounter;
 		unsigned long int _fdCounter;
 		bool		_isRunning;
 		bool		_isInitialized;
 		static bool signal;
 		//std::string	_ip;
+		//std::string	_ip;
 		struct sockaddr_in _addr;
 		struct epoll_event _ev;
+		struct epoll_event _maxEvents[1024];
 		struct epoll_event _maxEvents[1024];
 		struct epoll_event _runningEvent;
 
@@ -49,9 +56,14 @@ class Server {
 		std::map <std::string, Client*>	_clients;
 		std::map <std::string, Channel*> _channels;
 		std::map <std::string, Command>	_commands;
+		std::list<Client*> _newClient_toRegister;
+		std::map <std::string, Client*>	_clients;
+		std::map <std::string, Channel*> _channels;
+		std::map <std::string, Command>	_commands;
 		
 	public:
 		Server(int port, std::string password);
+		~Server();
 		~Server();
 		void InitializeServer();
 		void Run();

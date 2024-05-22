@@ -196,10 +196,12 @@ void	Server::InitializeServer(void)
 	if(this->_epollFD == -1)
 		throw std::runtime_error("ERROR: epoll creation failed");	
 	memset(&_ev, 0, sizeof(epoll_event));
+	memset(&_ev, 0, sizeof(epoll_event));
 	this->_ev.events = EPOLLIN;
 	this->_ev.data.fd = this->_serverSocket;
 	if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, this->_serverSocket, &this->_ev) == -1)
 		throw std::runtime_error("ERROR: epoll ctl failed");
+	_fdCounter++;	
 	_fdCounter++;	
 
 	this->_isInitialized = true;
@@ -212,12 +214,15 @@ void	Server::Run(void)
 {
 	_fdCounter = 1;
 
+	_fdCounter = 1;
+
 	if (!this->_isInitialized)
 		throw std::runtime_error("ERROR: server not initialized");
 	this->_isRunning = true;
 	std::cout << "Server is UP" << std::endl;
 	while (this->_isRunning)
 	{
+		int	eventNumber = epoll_wait(this->_epollFD, this->_maxEvents, 100, 0); //check non blocking events(0)
 		int	eventNumber = epoll_wait(this->_epollFD, this->_maxEvents, 100, 0); //check non blocking events(0)
 		if(eventNumber > 0)
 		{
@@ -226,7 +231,10 @@ void	Server::Run(void)
 			{
 				//if the event is on the server socket
 				if(this->_maxEvents[i].data.fd == this->_serverSocket) 
+				//if the event is on the server socket
+				if(this->_maxEvents[i].data.fd == this->_serverSocket) 
 				{
+					int newFdSocket = accept(this->_serverSocket, NULL, NULL);
 					int newFdSocket = accept(this->_serverSocket, NULL, NULL);
 					
 					if(_fdCounter >= 1024 - 1)
@@ -237,13 +245,37 @@ void	Server::Run(void)
 						continue;
 					}
 					if(newFdSocket == -1)
+					if(_fdCounter >= 1024 - 1)
+					{
+						send(newFdSocket, ":ircserv QUIT :The server is full!\r\n", 37, MSG_DONTWAIT | MSG_NOSIGNAL);
+						send(newFdSocket, "", 0, MSG_DONTWAIT | MSG_NOSIGNAL);
+						close(newFdSocket);
+						continue;
+					}
+					if(newFdSocket == -1)
 						throw std::runtime_error("ERROR: accept failed");
+					if(fcntl(newFdSocket, F_SETFL, O_NONBLOCK) == -1)
 					if(fcntl(newFdSocket, F_SETFL, O_NONBLOCK) == -1)
 						throw std::runtime_error("ERROR: fcntl failed");
 					this->_ev.events = EPOLLIN | EPOLLET;
 					this->_ev.data.fd = newFdSocket;
 					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, newFdSocket, &this->_ev) == -1)
+					this->_ev.data.fd = newFdSocket;
+					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, newFdSocket, &this->_ev) == -1)
 						throw std::runtime_error("ERROR: epoll ctl failed");
+					std::cout << "New Client Connected: " << newFdSocket << std::endl;
+					_fdCounter++;
+					
+					//fd in non registered client list
+					Client* newClient = new Client(newFdSocket);
+					if (newClient != 0)
+					{
+						std::string	RPL_INFO = ":ircserv INFO :Connected to 42IRC server!\r\n";
+						send(newFdSocket, RPL_INFO.c_str(), RPL_INFO.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+						_newClient_toRegister.push_back(newClient);
+					}
+				}
+				// else if the event is NOT on the server socket
 					std::cout << "New Client Connected: " << newFdSocket << std::endl;
 					_fdCounter++;
 					
