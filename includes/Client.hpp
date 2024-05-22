@@ -28,21 +28,14 @@ class Client {
 		~Client(void);
 
 		const int &getFd() const;
-<<<<<<< HEAD
 		bool getIsLogged() const;
-=======
-		void getIsLogged() const;
->>>>>>> 7bc606e8ebbbc3da34d85132fcbfb9718efdb1f4
 		std::string getBuffer() const;
 		
 		void setIsLogged(bool logged);
 		void setBuffer(std::string &buffer);
 
 		void deleteClfromChannel(Server &server);
-<<<<<<< HEAD
-=======
 
->>>>>>> 7bc606e8ebbbc3da34d85132fcbfb9718efdb1f4
 
 }; 
 
