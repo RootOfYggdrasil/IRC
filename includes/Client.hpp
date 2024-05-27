@@ -17,6 +17,7 @@ class Client {
 		std::string		_user;
 		std::string		_buffer;
 		bool			_isLogged;
+		bool			_hasPw;
 
 		std::map <std::string, Channel *>	_connectedOnChannel;
 
@@ -29,6 +30,7 @@ class Client {
 
 		const int &getFd() const;
 		bool getIsLogged() const;
+		bool getHasPw() const;
 		std::string getNickname() const;
 		std::string getBuffer() const;
 		

@@ -20,7 +20,7 @@ Server &Server::operator=(Server const &op)
 		//this->_port = op._addr;
 		this->_serverSocket = op._serverSocket;
 		this->_epollFD = op._epollFD;
-		this->_ip = op._ip;
+		//this->_ip = op._ip;
 		this->_password = op._password;
 	}
 	return *this;
@@ -134,15 +134,27 @@ std::vector<std::string> splitCmd(const std::string &line)
 void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 {
 	std::string cmd = pVector[0];
-	std::map<std::string, Command>::iterator it = this->_commands.find(cmd);
+	std::map<std::string, functionCmd>::iterator it = this->_commands.find(cmd);
 
 	if (!pVector.size())
 		return;
 	pVector.erase(pVector.begin());
 	if (it != this->_commands.end())
 	{
-		this->_commands[cmd](*this, client, pVector); ///PROBLEMA NON LO PRENDE COSI
+		this->_commands[cmd](*this, client, pVector); //verificare se funziona 
 	}
+}
+
+void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
+{
+	std::string cmd;
+
+	if (!pVector.size())
+		return;
+	cmd = pVector[0];
+	pVector.erase(pVector.begin());
+	if (!_isLogged)
+		
 }
 
 void Server::handleMessage(Client &client, const char *msg)

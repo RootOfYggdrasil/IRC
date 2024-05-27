@@ -17,7 +17,7 @@ const int &Client::getFd() const {return this->_clientFd;}
 bool Client::getIsLogged() const {return this->_isLogged;}
 std::string  Client::getNickname() const {return this->_nickname;}
 std::string  Client::getBuffer() const {return this->_buffer;}
-
+bool Client::getHasPw() const {return this->_hasPw;}
 
 void Client::setIsLogged(bool logged){_isLogged = logged;}
 void Client::setBuffer(std::string &buffer){this->_buffer = buffer;}

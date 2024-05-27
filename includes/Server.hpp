@@ -33,6 +33,7 @@
 # include "Command.hpp"
 # include "Channel.hpp"
 
+typedef void (*functionCmd)(Server &server, Client &client, std::vector<std::string> &vArguments);
 
 class Server {
 
@@ -54,7 +55,7 @@ class Server {
 		std::list<Client*> _newClient_toRegister;
 		std::map <std::string, Client*>	_clients;
 		std::map <std::string, Channel*> _channels;
-		std::map <std::string, Command>	_commands;
+		std::map <std::string, functionCmd>	_commands;
 		
 	public:
 		Server(int port, std::string password);
@@ -77,7 +78,8 @@ class Server {
 
 		void handleMessage(Client &client, const char *msg);
 		std::vector<std::string> splitCmd(const std::string &line);
-		void handleCommand(Client &client, std::vector<std::string> commands);
+		void handleCommand(Client &client, std::vector<std::string> pVector);
+		void registerNotLogged(Client &client, std::vector<std::string> pVector);
 
 		static void checkSignal(int signal);
 		void fdClose(void);
