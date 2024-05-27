@@ -4,6 +4,7 @@
 # define SERVER_HPP
 
 # include <iostream>
+# include <sstream>
 # include <fcntl.h> 
 # include <unistd.h> 
 # include <csignal> 
@@ -13,7 +14,10 @@
 # include <netinet/in.h> 
 # include <arpa/inet.h> 
 # include <sys/epoll.h> 
+# include <string>
+# include <stdexcept>
 # include <string.h>
+# include <iomanip>
 # include <netdb.h>
 # include <stdio.h>
 # include <list>
@@ -29,33 +33,24 @@
 # include "Command.hpp"
 # include "Channel.hpp"
 
-//class Client;
 
 class Server {
 
 	private:
 		in_port_t 	_port;
 		std::string	_password;
-		std::string	_password;
 		int 		_serverSocket;
 		int 		_epollFD;
-		unsigned long int _fdCounter;
 		unsigned long int _fdCounter;
 		bool		_isRunning;
 		bool		_isInitialized;
 		static bool signal;
 		//std::string	_ip;
-		//std::string	_ip;
 		struct sockaddr_in _addr;
 		struct epoll_event _ev;
 		struct epoll_event _maxEvents[1024];
-		struct epoll_event _maxEvents[1024];
 		struct epoll_event _runningEvent;
 
-		std::list<Client*> _newClient_toRegister;
-		std::map <std::string, Client*>	_clients;
-		std::map <std::string, Channel*> _channels;
-		std::map <std::string, Command>	_commands;
 		std::list<Client*> _newClient_toRegister;
 		std::map <std::string, Client*>	_clients;
 		std::map <std::string, Channel*> _channels;
@@ -80,8 +75,8 @@ class Server {
 		Client *getClient(const std::string &nickname) const;
 		Channel *getChannel(const std::string &channelName) const;	
 
-		void handleMessage(Client *client, const char *msg);
-		std::vector<std::string> splitCmd(std::string &line);
+		void handleMessage(Client &client, const char *msg);
+		std::vector<std::string> splitCmd(const std::string &line);
 		void handleCommand(Client &client, std::vector<std::string> commands);
 
 		static void checkSignal(int signal);
