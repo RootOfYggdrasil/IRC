@@ -6,6 +6,10 @@
 # include "Server.hpp"
 # include "Client.hpp"
 # include "Channel.hpp"
+# include <vector>
+# include <iostream>
+# include <string>
+# include <sstream>
 
 class Server;
 class Client;
@@ -16,15 +20,12 @@ class Command {
 		Command(void);
 		~Command(void);
 	public:
-		static void	join(Server &server, Client &client, std::string &command);
-		static void	ping(Server &server, Client &client, std::string &command);
-		static void	pass(Server &server, Client &client, std::string &command);
-		static void	nick(Server &server, Client &client, std::string &command);
-		static void	user(Server &server, Client &client, std::string &command);
-		static void	quit(Server &server, Client &client, std::string &command);
-		static void	privmsg(Server &server, Client &client, std::string &command);
-		static void	notice(Server &server, Client &client, std::string &command);
+		static void	join(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void	privmsg(Server &server, Client &client, std::vector<std::string> &vArguments);
 		static void	invite(Server &server, Client &client, std::string &command);
+		static void	bot(Server &s, Client &client, std::vector<std::string> &vArguments);
+		static void	bot(Server &s, Client &client, std::string &command);
+		static void nick(Server &server, Client &client, std::vector<std::string> &vArguments);
 }; 
 
 #endif
