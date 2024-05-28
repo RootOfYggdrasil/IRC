@@ -3,9 +3,15 @@
 
 char hostname[1024]{};
 
-Server::Server(int port, std::string password) : _port(port), _serverSocket(0), _password(password) 
+Server::Server(int &port, std::string &password) : _port(port), _serverSocket(0), _fdCounter(4), _password(password), _okPw(password.compare("") != 0) 
 {
-	_clients[]
+	srand(time(0));
+	_commands["QUIT"] = &Command::quit;
+	_commands["TOPIC"] = &Command::topic;
+	_commands["KICK"] = &Command::kick;
+	_commands["MODE"] = &Command::mode;
+	_commands["INVITE"] = &Command::inv;
+	_commands
 }
 
 Server::Server(Server const &src) 
@@ -31,11 +37,11 @@ Server::~Server(void) { }
 
 int Server::getPort() const { return this->_port; }
 int Server::getSocket() const { return this->_serverSocket; }
-std::string Server::getPw() const { return this->_password; }
+const std::string &Server::getPw() const { return this->_password; }
 
 void Server::setPort(const in_port_t &port){ this->_port = port; }
 void Server::setSocket(int _serverSocketFd){ this->_serverSocket = _serverSocketFd; }
-void Server::setPw(const std::string &pw){ this->_password = pw; }
+//void Server::setPw(const std::string &pw){ this->_password = pw; }
 
 
 bool Server::signal = false;
@@ -153,8 +159,9 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 		return;
 	cmd = pVector[0];
 	pVector.erase(pVector.begin());
-	if (!_isLogged)
-		
+	if (!this->_okPw)
+		client.setPw(true);
+	///DA FINIRE
 }
 
 void Server::handleMessage(Client &client, const char *msg)

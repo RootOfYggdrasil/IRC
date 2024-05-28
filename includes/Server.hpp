@@ -45,6 +45,7 @@ class Server {
 		unsigned long int _fdCounter;
 		bool		_isRunning;
 		bool		_isInitialized;
+		bool		_okPw;
 		static bool signal;
 		//std::string	_ip;
 		struct sockaddr_in _addr;
@@ -58,19 +59,16 @@ class Server {
 		std::map <std::string, functionCmd>	_commands;
 		
 	public:
-		Server(int port, std::string password);
-		~Server();
+		Server(int &port, std::string &password);
 		~Server();
 		void InitializeServer();
 		void Run();
 
 		int getPort() const;
 		int getSocket() const;
-		std::string getPw() const;
 
 		void setPort(const in_port_t &port);
 		void setSocket(int _serverSocketFd);
-		void setPw(const std::string &pw);
 
 		Client *getClientComparingfFd(int fd) const;
 		Client *getClient(const std::string &nickname) const;
