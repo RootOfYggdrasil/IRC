@@ -27,7 +27,7 @@ class Client {
 		Client &operator=(const Client &op);
 		~Client(void);
 
-		const int &getFd() const;
+		const int getFd() const;
 		bool getIsLogged() const;
 		bool getPw() const;
 		const std::string &getUsername() const;
@@ -42,7 +42,7 @@ class Client {
 
 		void deleteClfromChannel(Server &server);
 
-
+		void addChannel(Channel *channel);
 }; 
 
 #endif

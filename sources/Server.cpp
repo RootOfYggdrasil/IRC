@@ -96,9 +96,9 @@ Client* Server::getClientComparingfFd(int fd) const
     }
 
     // Search in the _clientsNotRegistered list
-    auto lit = std::find_if(_newClient_toRegister.begin(), _newClient_toRegister.end(), compareFd);
+    auto lit = std::find_if(_newCltoRegister.begin(), _newCltoRegister.end(), compareFd);
     
-    if (lit != _newClient_toRegister.end()) {
+    if (lit != _newCltoRegister.end()) {
         return *lit;
     }
 
@@ -140,10 +140,16 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 	return commands;
 }
 
+std::string	toUpper(std::string str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+	return str;
+}
+
 void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 {
 	std::string cmd = pVector[0];
-	std::map<std::string, functionCmd>::iterator it = this->_commands.find(cmd);
+	std::map<std::string, functionCmd>::iterator it = this->_commands.find(toUpper(cmd));
 
 	if (!pVector.size())
 		return;
@@ -151,6 +157,7 @@ void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 	if (it != this->_commands.end())
 	{
 		std::cout << "Command Found: " << cmd << std::endl;
+		std::cout << "pVector size: " << pVector.size() << std::endl;
 		this->_commands[cmd](*this, client, pVector); //verificare se funziona 
 	}
 }
@@ -210,9 +217,15 @@ void Server::handleMessage(Client &client, const char *msg)
 		std::cout << "Line: " << line << std::endl;
 		std::vector<std::string> commands = splitCmd(line);
 		if (client.getIsLogged())
-		handleCommand(client, commands);
-		else 
+		{
+			std::cout << "Command Found, client logged" << std::endl;
+			handleCommand(client, commands);
+		}
+		else
+		{
+			std::cout << "Command Found, client not logged" << std::endl;
 			registerNotLogged(client, commands);
+		}
 		message.erase(0, pos + 1);
 		pos = message.find("\n");
 	}
@@ -375,4 +388,17 @@ void Server::fdClose(void)
 	this->_isRunning = false;
 	this->_isInitialized = false;
 	std::cout << "Server Closed" << std::endl;
+}
+
+
+void	Server::addChannel(Channel *channel)
+{
+	if (channel && !getChannel(channel->getName()))
+		_channels[channel->getName()] = channel;
+}
+
+void	Server::addClient(Client *client)
+{
+	if (client && !getClient(client->getNickname()))
+		_clients[client->getNickname()] = client;
 }

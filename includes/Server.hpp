@@ -83,6 +83,9 @@ class Server {
 
 		static void checkSignal(int signal);
 		void fdClose(void);
+
+		void addClient(Client *client);
+		void addChannel(Channel *channel);
 }; 
 
 

@@ -13,7 +13,7 @@ Client& Client::operator=(const Client &op)
 
 Client::~Client(){}
 
-const int &Client::getFd() const {return this->_clientFd;}
+const int Client::getFd() const {return this->_clientFd;}
 bool Client::getIsLogged() const {return this->_isLogged;}
 std::string  Client::getNickname() const {return this->_nickname;}
 std::string  Client::getBuffer() const {return this->_buffer;}
@@ -25,3 +25,9 @@ void Client::setNikcname(const std::string &nickname){this->_nickname = nickname
 void Client::setBuffer(std::string buffer) {this->_buffer = buffer;}
 void Client::setPw(bool pw) {this->_hasPw = pw;}
 void Client::setUsername(std::string &user) {this->_user = user;}
+
+void Client::addChannel(Channel *channel)
+{
+	if(channel && this->_connectedOnChannel.find(channel->getName()) == _connectedOnChannel.end())
+		this->_connectedOnChannel[channel->getName()] = channel;
+}

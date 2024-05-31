@@ -45,5 +45,9 @@ re: fclean
 	make all
 	@echo "'${G}re${DEF_COLOR}' for ${NAME} executed successfully!"
 
+run: re
+		clear
+		./$(NAME) 6667	password
+
 .PHONY: clean fclean re
 
