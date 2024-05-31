@@ -59,13 +59,15 @@ class Server {
 		std::map <std::string, functionCmd>	_commands;
 		
 	public:
-		Server(int &port, std::string &password);
+		Server(in_port_t port, std::string password);
 		~Server();
 		void InitializeServer();
 		void Run();
 
 		int getPort() const;
 		int getSocket() const;
+		const std::string getPw() const;
+
 
 		void setPort(const in_port_t &port);
 		void setSocket(int _serverSocketFd);

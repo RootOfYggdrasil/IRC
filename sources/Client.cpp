@@ -20,5 +20,5 @@ std::string  Client::getBuffer() const {return this->_buffer;}
 bool Client::getPw() const {return this->_hasPw;}
 
 void Client::setIsLogged(bool logged){_isLogged = logged;}
-void Client::setBuffer(std::string &buffer){this->_buffer = buffer;}
+void Client::setBuffer(std::string buffer){this->_buffer = buffer;}
 void Client::setPw(bool pw){this->_hasPw = pw;}

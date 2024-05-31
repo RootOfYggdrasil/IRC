@@ -7,14 +7,17 @@ C = \033[0;96m
 W = \033[1;97m
 
 NAME = ircserv
-CC	= c++ -std=c++98
+CC	= c++ -std=c++98 -g
 
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 
 RM = rm -f
 
-SRC_PATH = sources/
+SRC_PATH = sources
 SRC =	main \
+		$(SRC_PATH)/Channel \
+		$(SRC_PATH)/Client \
+		$(SRC_PATH)/Command \
 		$(SRC_PATH)/Server
 
 EXTENSION = .cpp

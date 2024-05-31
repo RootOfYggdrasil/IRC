@@ -2,7 +2,7 @@
 //#include "includes/Client.hpp"
 #include <iostream>
 
-int	portChecker(std::string string) 
+in_port_t	portChecker(std::string string) 
 {
 	for (size_t i = 0; i < string.length(); i++) 
 	{

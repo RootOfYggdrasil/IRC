@@ -3,7 +3,7 @@
 
 char hostname[1024]{};
 
-Server::Server(int &port, std::string &password) : _port(port), _serverSocket(0), _fdCounter(4), _password(password), _okPw(password.compare("") != 0) 
+Server::Server(in_port_t port, std::string password) : _port(port), _serverSocket(0), _fdCounter(4), _password(password), _okPw(password.compare("") != 0) 
 {
 	srand(time(0));
 	_commands["QUIT"] = &Command::quit;
@@ -11,9 +11,12 @@ Server::Server(int &port, std::string &password) : _port(port), _serverSocket(0)
 	_commands["KICK"] = &Command::kick;
 	_commands["MODE"] = &Command::mode;
 	_commands["INVITE"] = &Command::inv;
-	_commands
+	_commands["JOIN"] = &Command::join;
+	_commands["PRIVMSG"] = &Command::privmsg;
+	_commands["NICK"] = &Command::nick;
+	_commands["BOT"] = &Command::bot;
 }
-
+/*
 Server::Server(Server const &src) 
 {
 	*this = src;
@@ -30,14 +33,14 @@ Server &Server::operator=(Server const &op)
 		this->_password = op._password;
 	}
 	return *this;
-}
+}*/
 
 Server::~Server(void) { }
 
 
 int Server::getPort() const { return this->_port; }
 int Server::getSocket() const { return this->_serverSocket; }
-const std::string &Server::getPw() const { return this->_password; }
+const std::string Server::getPw() const { return this->_password; }
 
 void Server::setPort(const in_port_t &port){ this->_port = port; }
 void Server::setSocket(int _serverSocketFd){ this->_serverSocket = _serverSocketFd; }
@@ -102,7 +105,7 @@ Client* Server::getClientComparingfFd(int fd) const
     return nullptr;
 }
 
-std::vector<std::string> splitCmd(const std::string &line)
+std::vector<std::string> Server::splitCmd(const std::string &line)
 {
 	std::vector<std::string> commands;
 	std::string cmd;
@@ -147,6 +150,7 @@ void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (it != this->_commands.end())
 	{
+		std::cout << "Command Found: " << cmd << std::endl;
 		this->_commands[cmd](*this, client, pVector); //verificare se funziona 
 	}
 }
@@ -179,11 +183,11 @@ void Server::handleMessage(Client &client, const char *msg)
 		std::getline(iss, line);
 		std::cout << "Line: " << line << std::endl;
 		std::vector<std::string> commands = splitCmd(line);
-		if (client.getIsLogged())
-			handleCommand(client, commands);
-		else 
+		//if (client.getIsLogged())
+		handleCommand(client, commands);
+		//else 
 		//DA FARE 
-			registerNotLogged(client, commands);
+			//registerNotLogged(client, commands);
 		message.erase(0, pos + 1);
 	}
 	client.setBuffer(message);
@@ -284,6 +288,7 @@ void	Server::Run(void)
 					newCL = getClientComparingfFd(clientFdSocket);
 					memset(buff, 0, sizeof(buff));
 					int bytes = recv(clientFdSocket, buff, sizeof(buff), 0);
+					std::cout << "Message from client <" << clientFdSocket << ">: " << buff << std::endl;
 					if(bytes == -1)
 						throw std::runtime_error("ERROR: recv failed");
 					else if(bytes == 0)
@@ -302,7 +307,7 @@ void	Server::Run(void)
 					}
 					else
 					{
-						handleMessage(newCL, buff);
+						handleMessage(*newCL, buff);
 					}
 					
 		

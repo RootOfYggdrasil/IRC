@@ -22,10 +22,14 @@ class Command {
 	public:
 		static void	join(Server &server, Client &client, std::vector<std::string> &vArguments);
 		static void	privmsg(Server &server, Client &client, std::vector<std::string> &vArguments);
-		static void	invite(Server &server, Client &client, std::string &command);
 		static void	bot(Server &s, Client &client, std::vector<std::string> &vArguments);
-		static void	bot(Server &s, Client &client, std::string &command);
+	//	static void	bot(Server &s, Client &client, std::string &command);
 		static void nick(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void kick(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void quit(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void topic(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void mode(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void inv(Server &server, Client &client, std::vector<std::string> &vArguments);
 }; 
 
 #endif

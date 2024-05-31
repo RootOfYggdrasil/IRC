@@ -7,7 +7,14 @@ Channel::~Channel() {}
 
 Channel& Channel::operator=(const Channel &op)
 {
-
+	this->_name = op._name;
+	this->_password = op._password;
+	this->_topic = op._topic;
+	this->_creationTime = op._creationTime;
+	this->_inviteOnly = op._inviteOnly;
+	this->_topicRestrict = op._topicRestrict;
+	this->_clientsMax = op._clientsMax;
+	return *this;
 }
 
 bool	Channel::getInviteOnly()

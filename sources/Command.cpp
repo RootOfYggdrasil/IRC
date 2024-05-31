@@ -94,6 +94,80 @@ void	Command::nick(Server &server, Client &client, std::vector<std::string> &vAr
 	}
 	else
 	{
-		// change nickname
+	
 	}
 }
+
+void	Command::kick(Server &server, Client &client, std::vector<std::string> &vArguments)
+{
+	std::string clientMsg = "";
+	if (vArguments.size() < 2)
+	{
+		clientMsg = "461 " + client.getNickname() + " KICK :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+	
+	}
+}
+
+void	Command::quit(Server &server, Client &client, std::vector<std::string> &vArguments)
+{
+	std::string clientMsg = "";
+	if (vArguments.size() < 1)
+	{
+		clientMsg = "461 " + client.getNickname() + " QUIT :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+	
+	}
+}
+
+void	Command::topic(Server &server, Client &client, std::vector<std::string> &vArguments)
+{
+	std::string clientMsg = "";
+	if (vArguments.size() < 1)
+	{
+		clientMsg = "461 " + client.getNickname() + " TOPIC :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+	
+	}
+}
+
+
+void	Command::mode(Server &server, Client &client, std::vector<std::string> &vArguments)
+{
+	std::string clientMsg = "";
+	if (vArguments.size() < 1)
+	{
+		clientMsg = "461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+	
+	}
+}
+
+
+void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArguments)
+{
+	std::string clientMsg = "";
+	if (vArguments.size() < 1)
+	{
+		clientMsg = "461 " + client.getNickname() + " INV :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+	
+	}
+}
+
+

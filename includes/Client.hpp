@@ -24,7 +24,6 @@ class Client {
 	public:
 		Client(void);
 		Client(int fd);
-		Client(int fd);
 		Client &operator=(const Client &op);
 		~Client(void);
 
@@ -35,7 +34,7 @@ class Client {
 		std::string getBuffer() const;
 		
 		void setIsLogged(bool logged);
-		void setBuffer(std::string &buffer);
+		void setBuffer(std::string buffer);
 		void setPw(bool pw);
 
 		void deleteClfromChannel(Server &server);
