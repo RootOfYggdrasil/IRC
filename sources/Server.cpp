@@ -130,11 +130,11 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 	}
 	if (commands.size())
 	{
-		size_t pos = commands[commands.size() - 2].find("\r\n");
+		size_t pos = commands[commands.size() - 1].find("\r");
 		while (pos != std::string::npos)
 		{
-			commands[commands.size() - 2].erase(pos, 2);
-			pos = commands[commands.size() - 2].find("\r\n");
+			commands[commands.size() - 1].erase(pos, 1);
+			pos = commands[commands.size() - 1].find("\r");
 		}
 	}
 	return commands;
@@ -165,13 +165,39 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (!this->_okPw)
 		client.setPw(true);
-	///DA FINIRE
+	if (!cmd.compare("NICK"))
+		Command::nick(*this, client, pVector);
+	else {
+		std::string error = "451 " + client.getNickname() + " :You have not registered\r\n";
+		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		return ;
+	}
+	if (!client.getNickname().empty() && !client.getUsername().empty() && client.getPw())
+	{
+		if(this->getClient(client.getNickname())) {
+			std::string error = "433 " + client.getNickname() + " :Nickname already in use\r\n";
+			send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+			return ;
+		}
+		std::cout << client.getNickname() << " now has registered." << std::endl;
+
+		std::string welcome = ":ircserv 001 " + client.getNickname() + " :Welcome to the 42 IRC Network " + client.getNickname() + "!\r\n";
+		//send(client.getFd(), welcome.c_str(), welcome.size(), MSG_DONTWAIT | MSG_NOSIGNAL);		
+		client.setIsLogged(true);
+		this->_newCltoRegister.remove(&client);
+		this->_clients[client.getNickname()] = &client;
+		std::string superchannel = "#welcome";
+		std::vector<std::string> welcomeVector;
+		welcomeVector.push_back("JOIN");
+		welcomeVector.push_back(superchannel);
+		handleCommand(client, welcomeVector);
+	}
 }
 
 void Server::handleMessage(Client &client, const char *msg)
 {
 	std::string message = msg;
-	size_t pos = message.find("\r\n");
+	size_t pos = message.find("\n");
 	if (pos != std::string::npos)
 		message = message.substr(0, pos);
 	message = client.getBuffer() + message;
@@ -183,12 +209,12 @@ void Server::handleMessage(Client &client, const char *msg)
 		std::getline(iss, line);
 		std::cout << "Line: " << line << std::endl;
 		std::vector<std::string> commands = splitCmd(line);
-		//if (client.getIsLogged())
+		if (client.getIsLogged())
 		handleCommand(client, commands);
-		//else 
-		//DA FARE 
-			//registerNotLogged(client, commands);
+		else 
+			registerNotLogged(client, commands);
 		message.erase(0, pos + 1);
+		pos = message.find("\n");
 	}
 	client.setBuffer(message);
 }
@@ -276,7 +302,7 @@ void	Server::Run(void)
 					{
 						std::string	RPL_INFO = ":ircserv INFO :Connected to 42IRC server!\r\n";
 						send(newFdSocket, RPL_INFO.c_str(), RPL_INFO.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-						_newClient_toRegister.push_back(newClient);
+						_newCltoRegister.push_back(newClient);
 					}
 				}
 				// else if the event is NOT on the server socket
@@ -309,15 +335,34 @@ void	Server::Run(void)
 					{
 						handleMessage(*newCL, buff);
 					}
-					
-		
-
-
 				}
 			}
 		}
 	}
-	//Close();
+	_clients.erase("#welcome");
+
+	for(std::list<Client*>::iterator it = this->_newCltoRegister.begin(); it != this->_newCltoRegister.end(); it++)
+	{
+		send((*it)->getFd(), ":ircserv QUIT :The server is disconnected!\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, (*it)->getFd(), NULL);
+		_fdCounter--;
+		if((*it)->getFd() >= 0)
+			close((*it)->getFd());
+		delete *it;
+	}
+	for(std::map<std::string, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		send(it->second->getFd(), ":ircserv QUIT :The server is disconnected!\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, it->second->getFd(), NULL);
+		_fdCounter--;
+		if(it->second->getFd() >= 0)
+			close(it->second->getFd());
+		delete it->second;
+	}
+	for(std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+		delete it->second;
+	close(this->_epollFD);
+	close(this->_serverSocket);
 }
 
 void Server::fdClose(void)

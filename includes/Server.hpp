@@ -53,7 +53,7 @@ class Server {
 		struct epoll_event _maxEvents[1024];
 		struct epoll_event _runningEvent;
 
-		std::list<Client*> _newClient_toRegister;
+		std::list<Client*> _newCltoRegister;
 		std::map <std::string, Client*>	_clients;
 		std::map <std::string, Channel*> _channels;
 		std::map <std::string, functionCmd>	_commands;

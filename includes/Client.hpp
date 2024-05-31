@@ -30,12 +30,15 @@ class Client {
 		const int &getFd() const;
 		bool getIsLogged() const;
 		bool getPw() const;
+		const std::string &getUsername() const;
 		std::string getNickname() const;
 		std::string getBuffer() const;
 		
 		void setIsLogged(bool logged);
+		void setNikcname(const std::string &nickname);
 		void setBuffer(std::string buffer);
 		void setPw(bool pw);
+		void setUsername(std::string &user);
 
 		void deleteClfromChannel(Server &server);
 
