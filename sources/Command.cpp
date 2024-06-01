@@ -169,6 +169,7 @@ void	Command::privmsg(Server &server, Client &client, std::vector<std::string> &
 	std::string clientMsg = "";
 	std::vector<std::string>	target;
 
+	std::cout << "PRIVMSG Called" << std::endl;
 	if (vArguments.size() < 2)
 	{
 		clientMsg = "461 " + client.getNickname() + " PRIVMSG :Not enough parameters\r\n";
@@ -283,6 +284,8 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 	o: -+o [tizio] Give/take channel operator privilege
 	l: +-l [number] Set/remove the user limit to channel*/
 	std::string clientMsg = "";
+
+	std::cout << "MODE Called arguments size:" << vArguments.size() << std::endl;
 	if (vArguments.size() < 2)
 	{
 		clientMsg = "461 " + client.getNickname() + " MODE :Not enough parameters\r\n";

@@ -18,7 +18,8 @@ SRC =	main \
 		$(SRC_PATH)/Channel \
 		$(SRC_PATH)/Client \
 		$(SRC_PATH)/Command \
-		$(SRC_PATH)/Server
+		$(SRC_PATH)/Server	\
+		$(SRC_PATH)/Utils
 
 EXTENSION = .cpp
 SRCFC	= $(addsuffix $(EXTENSION), $(SRC))

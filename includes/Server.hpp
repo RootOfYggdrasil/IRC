@@ -32,6 +32,7 @@
 # include "Client.hpp"
 # include "Command.hpp"
 # include "Channel.hpp"
+# include "Utils.hpp"
 
 typedef void (*functionCmd)(Server &server, Client &client, std::vector<std::string> &vArguments);
 

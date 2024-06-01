@@ -5,7 +5,7 @@ Channel::Channel() {}
 
 Channel::Channel(std::string name)
 {
-	this->_name = name;
+	this->_name = toLowerString(name);
 	this->_password = "";
 	this->_topic = "";
 	this->_creationTime = "";
@@ -16,7 +16,7 @@ Channel::Channel(std::string name)
 
 Channel::Channel(std::string name, std::string password)
 {
-	this->_name = name;
+	this->_name = toLowerString(name);
 	this->_password = password;
 	this->_topic = "";
 	this->_creationTime = "";

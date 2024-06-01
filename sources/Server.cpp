@@ -15,6 +15,10 @@ Server::Server(in_port_t port, std::string password) : _port(port), _serverSocke
 	_commands["PRIVMSG"] = &Command::privmsg;
 	_commands["NICK"] = &Command::nick;
 	_commands["BOT"] = &Command::bot;
+
+	Channel *welcome = new Channel("#welcome");
+	addChannel(welcome);
+
 }
 /*
 Server::Server(Server const &src) 
@@ -69,7 +73,7 @@ Channel *Server::getChannel(const std::string &channelName) const
 {
 	//da vedere se ci sono indicazioni da rispettare es toLower
 	Channel *ch = NULL;
-	std::map<std::string, Channel*>::const_iterator it = this->_channels.find(channelName);
+	std::map<std::string, Channel*>::const_iterator it = this->_channels.find(toLowerString(channelName));
 	if (it != _channels.end())
 		ch = it->second;
 	return ch;
@@ -140,24 +144,16 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 	return commands;
 }
 
-std::string	toUpper(std::string str)
-{
-	std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-	return str;
-}
-
 void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 {
 	std::string cmd = pVector[0];
-	std::map<std::string, functionCmd>::iterator it = this->_commands.find(toUpper(cmd));
+	std::map<std::string, functionCmd>::iterator it = this->_commands.find(toUpperString(cmd));
 
 	if (!pVector.size())
 		return;
 	pVector.erase(pVector.begin());
 	if (it != this->_commands.end())
 	{
-		std::cout << "Command Found: " << cmd << std::endl;
-		std::cout << "pVector size: " << pVector.size() << std::endl;
 		this->_commands[cmd](*this, client, pVector); //verificare se funziona 
 	}
 }
@@ -172,8 +168,6 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (!this->_okPw)
 		client.setPw(true);
-	std::cout << "CIAONE" << std::endl;
-	std::cout << ": " << cmd.compare("NICK") << std::endl;
 	if (!cmd.compare("NICK"))
 	 	Command::nick(*this, client, pVector);
 	if (!cmd.compare("USER"))
@@ -186,7 +180,6 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 	// }
 	if (!client.getNickname().empty() && !client.getUsername().empty())
 	{
-	 	std::cout << "CIAONE3" << std::endl;
 		if(this->getClient(client.getNickname())) {
 			std::string error = "433 " + client.getNickname() + " :Nickname already in use\r\n";
 			send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
@@ -225,12 +218,10 @@ void Server::handleMessage(Client &client, const char *msg)
 		std::vector<std::string> commands = splitCmd(line);
 		if (client.getIsLogged())
 		{
-			std::cout << "Command Found, client logged" << std::endl;
 			handleCommand(client, commands);
 		}
 		else
 		{
-			std::cout << "Command Found, client not logged, proceed to Registration" << std::endl;
 			registerNotLogged(client, commands);
 		}
 		message.erase(0, pos + 1);
