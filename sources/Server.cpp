@@ -59,8 +59,8 @@ void Server::checkSignal(int signal)
 Client *Server::getClient(const std::string &nickname) const
 {
 	Client *cl = NULL;
-	std::map<std::string, Client*>::const_iterator it = _clients.find(nickname);
-	if (it != _clients.end())
+	std::map<std::string, Client*>::const_iterator it = this->_clients.find(nickname);
+	if (it != this->_clients.end())
 		cl = it->second;
 	return cl;
 }
@@ -69,7 +69,7 @@ Channel *Server::getChannel(const std::string &channelName) const
 {
 	//da vedere se ci sono indicazioni da rispettare es toLower
 	Channel *ch = NULL;
-	std::map<std::string, Channel*>::const_iterator it = _channels.find(channelName);
+	std::map<std::string, Channel*>::const_iterator it = this->_channels.find(channelName);
 	if (it != _channels.end())
 		ch = it->second;
 	return ch;
@@ -130,11 +130,11 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 	}
 	if (commands.size())
 	{
-		size_t pos = commands[commands.size() - 1].find("\r");
+		size_t pos = commands[commands.size() - 1].find('\r');
 		while (pos != std::string::npos)
 		{
 			commands[commands.size() - 1].erase(pos, 1);
-			pos = commands[commands.size() - 1].find("\r");
+			pos = commands[commands.size() - 1].find('\r');
 		}
 	}
 	return commands;
@@ -172,21 +172,23 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (!this->_okPw)
 		client.setPw(true);
-	if (!cmd.compare("NICK"))
-		Command::nick(*this, client, pVector);
-	else {
-		std::string error = "451 " + client.getNickname() + " :You have not registered\r\n";
-		std::cout << "Error: " << error << std::endl;
-		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-		return ;
-	}
-	std::cout << client.getNickname() << client.getUsername() << client.getPw() << " is not logged." << std::endl;
+	std::cout << "CIAONE" << std::endl;
+	// if (!cmd.compare("NICK"))
+	// 	Command::nick(*this, client, pVector);
+	// else {
+	// 	std::string error = "451 " + client.getNickname() + " :You have not registered\r\n";
+	// 	std::cout << "Error: " << error << std::endl;
+	//  	send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	//  	return ;
+	// }
 
-	if (!client.getNickname().empty() && !client.getUsername().empty() && client.getPw())
-	{
+	// if (!client.getNickname().empty() && !client.getUsername().empty() && client.getPw())
+	// {
+	 	std::cout << "CIAONE3" << std::endl;
 		if(this->getClient(client.getNickname())) {
 			std::string error = "433 " + client.getNickname() + " :Nickname already in use\r\n";
 			send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+			client.setNikcname("");
 			return ;
 		}
 		std::cout << client.getNickname() << " now has registered." << std::endl;
@@ -201,13 +203,13 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 		welcomeVector.push_back("JOIN");
 		welcomeVector.push_back(superchannel);
 		handleCommand(client, welcomeVector);
-	}
+	//}
 }
 
 void Server::handleMessage(Client &client, const char *msg)
 {
 	std::string message = msg;
-	size_t pos = message.find("\n");
+	size_t pos = message.find('\n');
 	if (pos != std::string::npos)
 		message = message.substr(0, pos);
 	message = client.getBuffer() + message;
@@ -226,11 +228,11 @@ void Server::handleMessage(Client &client, const char *msg)
 		}
 		else
 		{
-			std::cout << "Command Found, client not logged" << std::endl;
+			std::cout << "Command Found, client not logged, proceed to Registration" << std::endl;
 			registerNotLogged(client, commands);
 		}
 		message.erase(0, pos + 1);
-		pos = message.find("\n");
+		pos = message.find('\n');
 	}
 	client.setBuffer(message);
 }
@@ -381,17 +383,14 @@ void	Server::Run(void)
 	close(this->_serverSocket);
 }
 
-void Server::fdClose(void)
-{
-	// for(size_t i = 0; i < clients.size(); i++){ //-> close all the clients
- 	//  std::cout << "Client <" << clients[i].GetFd() << "> Disconnected" << std::endl;
-  	// close(clients[i].GetFd());
-	close(this->_serverSocket);
-	close(this->_epollFD);
-	this->_isRunning = false;
-	this->_isInitialized = false;
-	std::cout << "Server Closed" << std::endl;
-}
+// void Server::fdClose(void)
+// {
+// 	close(this->_serverSocket);
+// 	close(this->_epollFD);
+// 	this->_isRunning = false;
+// 	this->_isInitialized = false;
+// 	std::cout << "Server Closed" << std::endl;
+// }
 
 
 void	Server::addChannel(Channel *channel)

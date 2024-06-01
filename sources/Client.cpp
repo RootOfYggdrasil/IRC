@@ -1,9 +1,9 @@
 
 #include "../includes/Client.hpp"
 
-Client::Client(void) : _clientFd(-1), _nickname("redelpipo"), _user("el-pipon"), _isLogged(false) {}
+Client::Client(void) : _clientFd(-1), _hasPw(true), _nickname("redelpipo"), _user("el-pipon"), _isLogged(true) {}
 
-Client::Client(int fd) : _clientFd(fd), _nickname(""), _user(""), _isLogged(false) {}
+Client::Client(int fd) : _clientFd(fd), _nickname(""), _user(""), _isLogged(false), _hasPw(false){}
 
 Client& Client::operator=(const Client &op)
 {
