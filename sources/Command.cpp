@@ -129,6 +129,7 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
 void	sendMsgToChannel(Server &server, Client &client, std::string channelName, std::string msg)
 {
 	std::string clientMsg = "";
+	std::cout << "Sending message to " << channelName << " - message:" << msg << std::endl;
 	Channel *channel = server.getChannel(channelName);
 	if (channel == NULL)
 	{
@@ -137,12 +138,11 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 	}
 	else
 	{
-		std::map<std::string, Client*>::iterator it = channel->getClients().begin();
-		while (it != channel->getClients().end())
+		std::vector<Client *> clientToMsg = channel->getLoggedClients();
+		for (size_t i = 0; i < clientToMsg.size(); i++)
 		{
-			clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost PRIVMSG #" + channelName + " :" + msg + "\r\n";
-			send(it->second->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-			it++;
+			clientMsg = ":" + client.getNickname() + "! PRIVMSG" + channelName + " :" + msg + "\r\n";
+			send(clientMsg[i], clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		}
 	}
 }

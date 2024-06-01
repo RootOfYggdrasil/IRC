@@ -74,6 +74,18 @@ std::map<std::string, Client*> &Channel::getClients()
 	return (this->_clients);
 }
 
+std::vector<Client*>	Channel::getLoggedClients()
+{
+	std::vector<Client*>	vLoggedClients;
+
+	for (auto it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (it->second->getIsLogged())
+			vLoggedClients.push_back(it->second);
+	}
+	return (vLoggedClients);
+}
+
 void	Channel::setTopic(std::string topic)
 {
 	this->_topic = topic;

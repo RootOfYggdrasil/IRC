@@ -39,6 +39,7 @@ class Channel {
 		std::string	getPassword();
 		std::string	getTopic();
 		std::map<std::string, Client*> &getClients();
+		std::vector<Client*>	getLoggedClients();
 
 		void	setTopic(std::string topic);
 		void	setTopic(std::vector<std::string> &vArguments);
