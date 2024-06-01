@@ -399,3 +399,12 @@ void	Server::addClient(Client *client)
 	if (client && !getClient(client->getNickname()))
 		_clients[client->getNickname()] = client;
 }
+
+void Server::sendToAll(const std::string &msg)
+{
+	for (std::map<std::string, Client *>::iterator	it = this->_clients.begin(); it != this->_clients.end(); ++it)
+	{
+		if (it->second)
+			send(it->second->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+}

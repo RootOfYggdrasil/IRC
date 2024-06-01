@@ -87,6 +87,8 @@ class Server {
 
 		void addClient(Client *client);
 		void addChannel(Channel *channel);
+		void sendToAll(const std::string &msg);
+		
 }; 
 
 
