@@ -7,7 +7,7 @@ C = \033[0;96m
 W = \033[1;97m
 
 NAME = ircserv
-CC	= c++ -std=c++98 -g
+CC	= c++ -g
 
 CFLAGS = -Wall -Wextra -Werror -std=c++98
 

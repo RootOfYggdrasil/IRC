@@ -190,7 +190,7 @@ bool	isValidNick(std::string nickname)
 {
 	if (nickname.size() > 16)
 		return false;
-	if (nickname.find_first_of("!@#$%^*-_=+\\|;:'\",<.>/?()[]{}") == std::string::npos)
+	if (nickname.find_first_of("!@#$%^*=+\\|;:'\",<.>/?()[]{}") != std::string::npos)
 		return false;
 	return true;
 }
@@ -198,6 +198,7 @@ bool	isValidNick(std::string nickname)
 void	Command::nick(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	std::string clientMsg = "";
+	std::cout << "nick called with arguments " << vArguments[0] << std::endl;
 	if (vArguments.size() < 1)
 		clientMsg = "461 " + client.getNickname() + " NICK :Not enough parameters\r\n";
 	else if (!isValidNick(vArguments[0]))

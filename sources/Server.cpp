@@ -178,6 +178,7 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 	//  	send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 	//  	return ;
 	// }
+	std::cout << "Client " << client.getNickname() << " user " << client.getUsername() << std::endl;
 	if (!client.getNickname().empty() && !client.getUsername().empty())
 	{
 		if(this->getClient(client.getNickname())) {
