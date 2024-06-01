@@ -19,6 +19,12 @@ std::string  Client::getNickname() const {return this->_nickname;}
 std::string  Client::getBuffer() const {return this->_buffer;}
 bool Client::getPw() const {return this->_hasPw;}
 const std::string &Client::getUsername() const {return this->_user;}
+Channel *Client::getChannel(const std::string &channelName) const
+{
+	if(this->_connectedOnChannel.find(channelName) != this->_connectedOnChannel.end())
+		return this->_connectedOnChannel.at(channelName);
+	return nullptr;
+}
 
 void Client::setIsLogged(bool logged) {_isLogged = logged;}
 void Client::setNikcname(const std::string &nickname){this->_nickname = nickname;}

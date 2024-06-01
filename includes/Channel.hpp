@@ -37,12 +37,16 @@ class Channel {
 		std::string	getName();
 		std::string	getPassword();
 		std::string	getTopic();
+		std::map<std::string, Client*> &getClients();
 
 		void	setTopic(std::string topic);
+		void	setTopic(std::vector<std::string> &vArguments);
 		void	setTopicRestrict(bool topicRestrict);
 		void	setInviteOnly(bool inviteOnly);
 		void	setClientsMax(int clientsMax);
 
+
+		bool	isOperator(Client &client);
 		void	addClient(Client *client);
 
 }; 

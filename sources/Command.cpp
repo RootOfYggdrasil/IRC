@@ -126,6 +126,44 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
     return tokens;
 }
 
+void	sendMsgToChannel(Server &server, Client &client, std::string channelName, std::string msg)
+{
+	std::string clientMsg = "";
+	Channel *channel = server.getChannel(channelName);
+	if (channel == NULL)
+	{
+		clientMsg = "403 " + client.getNickname() + " " + channelName + " :No such channel\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+		std::map<std::string, Client*>::iterator it = channel->getClients().begin();
+		while (it != channel->getClients().end())
+		{
+			clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost PRIVMSG #" + channelName + " :" + msg + "\r\n";
+			send(it->second->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+			it++;
+		}
+	}
+}
+
+void	sendMsgToClient(Server &server, Client &client, std::string target, std::string msg)
+{
+	std::string clientMsg = "";
+	Client *targetClient = server.getClient(target);
+	if (!targetClient)
+	{
+		clientMsg = "401 " + client.getNickname() + " " + target + " :No such nick\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+	else
+	{
+		clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + " PRIVMSG " + target + " :" + msg + "\r\n";
+		send(targetClient->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
+
+}
+
 void	Command::privmsg(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	std::string clientMsg = "";
@@ -140,22 +178,37 @@ void	Command::privmsg(Server &server, Client &client, std::vector<std::string> &
 	target = split(vArguments[0], ',');
 	for(size_t i = 0; i < target.size(); i++)
 	{
-		// send message to client
+		if(target[i][0] == '#')
+			sendMsgToChannel(server, client, target[i], vArguments[1]);
+		else
+			sendMsgToClient(server, client, target[i], vArguments[1]);
 	}	
+}
+
+bool	isValidNick(std::string nickname)
+{
+	if (nickname.size() > 16)
+		return false;
+	if (nickname.find_first_of("!@#$%^*-_=+\\|;:'\",<.>/?()[]{}") == std::string::npos)
+		return false;
+	return true;
 }
 
 void	Command::nick(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	std::string clientMsg = "";
 	if (vArguments.size() < 1)
-	{
 		clientMsg = "461 " + client.getNickname() + " NICK :Not enough parameters\r\n";
-		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-	}
+	else if (!isValidNick(vArguments[0]))
+		clientMsg = "432 " + client.getNickname() + " :Erroneus nickname\r\n";
+	else if (server.getClient(vArguments[0]))
+		clientMsg = "433 " + client.getNickname() + " :Nickname is already in use, try a different one.\r\n";
 	else
 	{
-	
+		client.setNikcname(vArguments[0]);
+		return;
 	}
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
 
 void	Command::kick(Server &server, Client &client, std::vector<std::string> &vArguments)
@@ -174,6 +227,8 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 
 void	Command::quit(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+
+	// come si disconnette?
 	std::string clientMsg = "";
 	if (vArguments.size() < 1)
 	{
@@ -184,35 +239,62 @@ void	Command::quit(Server &server, Client &client, std::vector<std::string> &vAr
 	{
 	
 	}
+
+	//va segnalato che un client si disconnette???
 }
 
 void	Command::topic(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	std::string clientMsg = "";
-	if (vArguments.size() < 1)
+	Channel *channel = client.getChannel(vArguments[0]);
+	if(!channel)
+		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
+	if(vArguments.size() == 0)
 	{
-		clientMsg = "461 " + client.getNickname() + " TOPIC :Not enough parameters\r\n";
+		channel->getTopic() == "" ? 
+		clientMsg = "331 " + client.getNickname() + " " + vArguments[0] + " :No topic is set\r\n" :
+		clientMsg = "332 " + client.getNickname() + " #" + channel->getName() + " :" + channel->getTopic() + "\r\n";
 		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		return;
 	}
+	else if(channel->getTopicRestrict() && !channel->isOperator(client))
+		return;// da vdere l'errore
 	else
 	{
-	
+		channel->setTopic(vArguments);
+		clientMsg = 	"332 " + client.getNickname() + " " + channel->getName() +  " :" + channel->getTopic() + "\r\n";
+
 	}
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	/*if (clientMsg.find("332") == std::string::npos)
+	{
+		send message to all client
+	}*/
+	
 }
 
 
 void	Command::mode(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+	/*
+	i: +-i Set/remove Invite-only channel
+	t: +-t Set/remove the restrictions of the TOPIC command to channel operators
+	k: -+k [password] Set/remove the channel key (password)
+	o: -+o [tizio] Give/take channel operator privilege
+	l: +-l [number] Set/remove the user limit to channel*/
 	std::string clientMsg = "";
-	if (vArguments.size() < 1)
+	if (vArguments.size() < 2)
 	{
 		clientMsg = "461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 	}
 	else
 	{
-	
+		if (vArguments[0].length() > 2)
+		{
+			clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
+		}
 	}
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
 
 

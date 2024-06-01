@@ -24,3 +24,12 @@ Creare struttura:
 -Commands
 -Modalita di comunicazione tra server e client
 -Modalita di chiamata dei comandi dal server
+-Comandi
+	-	JOIN	
+	-	PART	
+	-	QUIT	
+	-	MODE	
+	-	PRIVMSG	V
+	-	KICK	
+	-	TOPIC	V
+	-	INVITE

@@ -69,9 +69,24 @@ std::string	Channel::getTopic()
 	return (this->_topic);
 }
 
+std::map<std::string, Client*> &Channel::getClients()
+{
+	return (this->_clients);
+}
+
 void	Channel::setTopic(std::string topic)
 {
 	this->_topic = topic;
+}
+
+void	Channel::setTopic(std::vector<std::string> &vArguments)
+{
+	if (vArguments.size() > 1)
+	{
+		this->_topic = vArguments[1];
+		for (size_t i = 2; i < vArguments.size(); i++)
+			this->_topic += " " + vArguments[i];
+	}
 }
 
 void	Channel::setTopicRestrict(bool topicRestrict)
@@ -87,6 +102,11 @@ void	Channel::setInviteOnly(bool inviteOnly)
 void	Channel::setClientsMax(int clientsMax)
 {
 	this->_clientsMax = clientsMax;
+}
+
+bool	Channel::isOperator(Client &client)
+{
+	return (this->_clients.find(client.getNickname()) != this->_clients.end());
 }
 
 void	Channel::addClient(Client *client)

@@ -176,9 +176,12 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 		Command::nick(*this, client, pVector);
 	else {
 		std::string error = "451 " + client.getNickname() + " :You have not registered\r\n";
+		std::cout << "Error: " << error << std::endl;
 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		return ;
 	}
+	std::cout << client.getNickname() << client.getUsername() << client.getPw() << " is not logged." << std::endl;
+
 	if (!client.getNickname().empty() && !client.getUsername().empty() && client.getPw())
 	{
 		if(this->getClient(client.getNickname())) {

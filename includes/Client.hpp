@@ -33,6 +33,7 @@ class Client {
 		const std::string &getUsername() const;
 		std::string getNickname() const;
 		std::string getBuffer() const;
+		Channel *getChannel(const std::string &channelName) const;
 		
 		void setIsLogged(bool logged);
 		void setNikcname(const std::string &nickname);
