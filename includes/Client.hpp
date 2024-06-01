@@ -36,7 +36,7 @@ class Client {
 		Channel *getChannel(const std::string &channelName) const;
 		
 		void setIsLogged(bool logged);
-		void setNikcname(const std::string &nickname);
+		void setNikcname(const std::string nickname);
 		void setBuffer(std::string buffer);
 		void setPw(bool pw);
 		void setUsername(std::string &user);

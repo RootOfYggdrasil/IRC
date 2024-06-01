@@ -27,7 +27,7 @@ Channel *Client::getChannel(const std::string &channelName) const
 }
 
 void Client::setIsLogged(bool logged) {_isLogged = logged;}
-void Client::setNikcname(const std::string &nickname){this->_nickname = nickname;}
+void Client::setNikcname(const std::string nickname){this->_nickname = nickname;}
 void Client::setBuffer(std::string buffer) {this->_buffer = buffer;}
 void Client::setPw(bool pw) {this->_hasPw = pw;}
 void Client::setUsername(std::string &user) {this->_user = user;}

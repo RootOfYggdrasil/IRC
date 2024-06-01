@@ -206,7 +206,6 @@ void	Command::nick(Server &server, Client &client, std::vector<std::string> &vAr
 	else
 	{
 		client.setNikcname(vArguments[0]);
-		return;
 	}
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
@@ -274,6 +273,7 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 }
 
 
+
 void	Command::mode(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	/*
@@ -289,10 +289,10 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 	}
 	else
 	{
-		if (vArguments[0].length() > 2)
-		{
+		if (vArguments[0].length() > 2 && !vArguments[0][0] == '+' && !vArguments[0][0] == '-')
 			clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
-		}
+		//else if (vArguments[0][1] == '+')
+		//	clientMsg = handle
 	}
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
@@ -310,6 +310,19 @@ void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArg
 	{
 	
 	}
+}
+
+void	Command::user(Server &server, Client &client, std::vector<std::string> &vArguments)
+{
+	std::string clientMsg = "";
+	//da implementare se gia registrato
+	if (vArguments.size() < 1)
+	{
+		clientMsg = "461 " + client.getNickname() + " USER :Not enough parameters\r\n";
+	}
+	else
+		client.setUsername(vArguments[0]);
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
 
 

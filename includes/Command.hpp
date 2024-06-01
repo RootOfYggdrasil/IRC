@@ -30,6 +30,7 @@ class Command {
 		static void topic(Server &server, Client &client, std::vector<std::string> &vArguments);
 		static void mode(Server &server, Client &client, std::vector<std::string> &vArguments);
 		static void inv(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void user(Server &server, Client &client, std::vector<std::string> &vArguments);
 }; 
 
 #endif
