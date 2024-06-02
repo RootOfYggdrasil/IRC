@@ -77,6 +77,8 @@ class Server {
 		Client *getClient(const std::string &nickname) const;
 		Channel *getChannel(const std::string &channelName) const;	
 
+		void deleteChannel(const std::string &nameChannel);
+
 		void handleMessage(Client &client, const char *msg);
 		std::vector<std::string> splitCmd(const std::string &line);
 		void handleCommand(Client &client, std::vector<std::string> pVector);

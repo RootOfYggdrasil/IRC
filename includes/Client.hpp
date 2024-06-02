@@ -9,6 +9,7 @@
 # include <vector>
 
 class Server;
+class Channel;
 
 class Client {
 	private:
@@ -41,7 +42,8 @@ class Client {
 		void setPw(bool pw);
 		void setUsername(std::string &user);
 
-		void deleteClfromChannel(Server &server);
+		void deleteChannelJoined(Channel *ch);
+//		void deleteClFromCh(Server &server);
 
 		void addChannel(Channel *channel);
 }; 

@@ -22,6 +22,7 @@ class Channel {
 
 		int			_clientsMax;
 		std::map<std::string, Client*>	_clients;
+		std::map<std::string, Client*>	_operatorClients;
 		//clients
 		//operatori
 
@@ -40,6 +41,7 @@ class Channel {
 		std::string	getTopic();
 		std::map<std::string, Client*> &getClients();
 		std::vector<Client*>	getLoggedClients();
+		std::vector<Client*>	getOperatorClients();
 
 		void	setTopic(std::string topic);
 		void	setTopic(std::vector<std::string> &vArguments);
@@ -50,6 +52,9 @@ class Channel {
 
 		bool	isOperator(Client &client);
 		void	addClient(Client *client);
+		void 	sendToAllClients(const std::string &msg);
+		void	deleteClient(Client *client);
+		void	deleteClient(std::string nickname);
 
 }; 
 

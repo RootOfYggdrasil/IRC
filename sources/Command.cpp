@@ -10,6 +10,16 @@ std::string	toLowerStr(std::string str)
 	return str;
 }
 
+std::string extractChannelName(std::vector<Client *> clients, std::string append)
+{
+	std::string channelName = "";
+	for (size_t i = 0; i < clients.size(); i++)
+	{
+		channelName += append + clients[i]->getNickname() + " ";
+	}
+	return channelName;
+}
+
 void	addClientToChannel(Server &server, Client &client, std::string channelName, std::string &password)
 {
 	std::string clientMsg = "";
@@ -19,46 +29,41 @@ void	addClientToChannel(Server &server, Client &client, std::string channelName,
 	{
 		channel = new Channel(toLowerStr(channelName), password);
 		server.addChannel(channel);
-		client.addChannel(channel);		
+		client.addChannel(channel);
 	}
-	else
-	{
 		//tutti i check del canale
 		//canale pieno
-		if (channel->getPassword() == password)
+	if (channel->getPassword() == password)
+	{
+		if (!channel->getInviteOnly())
 		{
-			if (!channel->getInviteOnly())
+			channel->addClient(&client);
+			client.addChannel(channel);
+			std::string chName = channel->getName();
+			std::string RPL_JOIN_TOCLIENT = ":" + client.getNickname() + "!" + client.getUsername() + "@ReDelPipo JOIN :" + chName + "\r\n";
+			std::string RPL_NAMREPLY = ":ircserv 353 " + client.getNickname() + " = " + chName + " :" + extractChannelName(channel->getOperatorClients(), "@") + extractChannelName(channel->getLoggedClients(), "")  + "\r\n";
+			std::string RPL_ENDOFNAMES = ":ircserv 366 " + client.getNickname() + " " + chName + " :End of NAMES list\r\n";
+			std::cout << RPL_NAMREPLY << std::endl;
+			std::string topic = channel->getTopic();
+			channel->sendToAllClients(RPL_JOIN_TOCLIENT);
+			if (!channel->getTopic().empty())
 			{
-				channel->addClient(&client);
-				client.addChannel(channel);
-				clientMsg = "JOIN " + channelName + "\r\n";
-				std::string chName = channel->getName();
-
-				std::string RPL_JOIN = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost JOIN :" + chName + "\r\n";
-				std::string RPL_NAMREPLY = ":ircserv 353 " + client.getNickname() + " = " + chName + " :" + client.getUsername() + "\r\n";
-				std::string RPL_ENDOFNAMES = ":ircserv 366 " + client.getNickname() + " " + chName + " :End of NAMES list\r\n";
-				send(client.getFd(), RPL_JOIN.c_str(), RPL_JOIN.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-
-				std::string topic = channel->getTopic();
-				if (!topic.empty())
-				{
-					std::string RPL_TOPIC = ":ircserv 332 " + client.getNickname() + " " + chName + " :" + topic + "\r\n";
-					send(client.getFd(), RPL_TOPIC.c_str(), RPL_TOPIC.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-				}
-				send(client.getFd(), RPL_NAMREPLY.c_str(), RPL_NAMREPLY.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-				send(client.getFd(), RPL_ENDOFNAMES.c_str(), RPL_ENDOFNAMES.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-			}
-			else
-			{
-				clientMsg = "473 " + client.getNickname() + " " + channelName + " :Cannot join channel, InviteOnly channel!\r\n";
+				clientMsg = ":ircserv 332 " + client.getNickname() + " " + chName + " :" + channel->getTopic() + "\r\n";
 				send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 			}
+			send(client.getFd(), RPL_NAMREPLY.c_str(), RPL_NAMREPLY.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+			send(client.getFd(), RPL_ENDOFNAMES.c_str(), RPL_ENDOFNAMES.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		}
 		else
 		{
-			clientMsg = "475 " + client.getNickname() + " " + channelName + " :Cannot join channel\r\n";
+			clientMsg = "473 " + client.getNickname() + " " + channelName + " :Cannot join channel, InviteOnly channel!\r\n";
 			send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-		}		
+		}
+	}
+	else
+	{
+		clientMsg = "475 " + client.getNickname() + " " + channelName + " :Cannot join channel\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 	}
 }
 
@@ -129,7 +134,6 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
 void	sendMsgToChannel(Server &server, Client &client, std::string channelName, std::string msg)
 {
 	std::string clientMsg = "";
-	std::cout << "Sending message to " << channelName << " - message:" << msg << std::endl;
 	Channel *channel = server.getChannel(channelName);
 	if (channel == NULL)
 	{
@@ -141,8 +145,9 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 		std::vector<Client *> clientToMsg = channel->getLoggedClients();
 		for (size_t i = 0; i < clientToMsg.size(); i++)
 		{
-			clientMsg = ":" + client.getNickname() + "! PRIVMSG" + channelName + " :" + msg + "\r\n";
-			send(clientMsg[i], clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+			std::cout << "clientToMsg: " << clientToMsg[i]->getNickname() << std::endl;
+			clientMsg = ":" + client.getNickname() + "! PRIVMSG " + channelName + " :" + msg + "\r\n";
+			send(clientToMsg[i]->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		}
 	}
 }
@@ -169,7 +174,6 @@ void	Command::privmsg(Server &server, Client &client, std::vector<std::string> &
 	std::string clientMsg = "";
 	std::vector<std::string>	target;
 
-	std::cout << "PRIVMSG Called" << std::endl;
 	if (vArguments.size() < 2)
 	{
 		clientMsg = "461 " + client.getNickname() + " PRIVMSG :Not enough parameters\r\n";
@@ -198,7 +202,6 @@ bool	isValidNick(std::string nickname)
 void	Command::nick(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	std::string clientMsg = "";
-	std::cout << "nick called with arguments " << vArguments[0] << std::endl;
 	if (vArguments.size() < 1)
 		clientMsg = "461 " + client.getNickname() + " NICK :Not enough parameters\r\n";
 	else if (!isValidNick(vArguments[0]))
@@ -283,14 +286,13 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 	t: +-t Set/remove the restrictions of the TOPIC command to channel operators
 	k: -+k [password] Set/remove the channel key (password)
 	o: -+o [tizio] Give/take channel operator privilege
-	l: +-l [number] Set/remove the user limit to channel*/
+	l: +-l [number] Set/remove the user lim it to channel*/
 	std::string clientMsg = "";
 
-	std::cout << "MODE Called arguments size:" << vArguments.size() << std::endl;
+	if (vArguments.size() == 1 && vArguments[0][0] == '#')
+		return;
 	if (vArguments.size() < 2)
-	{
 		clientMsg = "461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
-	}
 	else
 	{
 		if (vArguments[0].length() > 2 && !vArguments[0][0] == '+' && !vArguments[0][0] == '-')
@@ -328,5 +330,6 @@ void	Command::user(Server &server, Client &client, std::vector<std::string> &vAr
 		client.setUsername(vArguments[0]);
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
+
 
 

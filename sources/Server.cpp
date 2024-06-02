@@ -15,7 +15,6 @@ Server::Server(in_port_t port, std::string password) : _port(port), _serverSocke
 	_commands["PRIVMSG"] = &Command::privmsg;
 	_commands["NICK"] = &Command::nick;
 	_commands["BOT"] = &Command::bot;
-
 	Channel *welcome = new Channel("#welcome");
 	addChannel(welcome);
 
@@ -77,6 +76,18 @@ Channel *Server::getChannel(const std::string &channelName) const
 	if (it != _channels.end())
 		ch = it->second;
 	return ch;
+}
+
+
+void	Server::deleteChannel(const std::string &nameChannel)
+{
+	std::map<std::string, Channel *>::iterator	it = _channels.find(toLowerString(nameChannel));
+
+	if (it != _channels.end())
+	{
+		delete(it->second);
+		_channels.erase(it);
+	}
 }
 
 /*cerca un Client con un fd specificato prima nella mappa _clients e poi nella lista _newClient_toRegister. 
@@ -197,6 +208,7 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 		std::vector<std::string> welcomeVector;
 		welcomeVector.push_back("JOIN");
 		welcomeVector.push_back(superchannel);
+		//sendToAll
 		handleCommand(client, welcomeVector);
 	}
 }
@@ -270,6 +282,7 @@ void	Server::InitializeServer(void)
 
 void	Server::Run()
 {
+	unsigned long int _fdCounter = 1;
 	int newFdSocket = 0;
 
 	if (!this->_isInitialized)
@@ -278,7 +291,7 @@ void	Server::Run()
 	std::cout << "Server is UP" << std::endl;
 	while (this->_isRunning)
 	{
-		int	eventNumber = epoll_wait(this->_epollFD, this->_maxEvents, 100, 0); //check non blocking events(0)
+		int	eventNumber = epoll_wait(this->_epollFD, this->_maxEvents, 100, -1); //check non blocking events(0)
 		if(eventNumber > 0)
 		{
 			std::cout << "Event Detected! Nr: " << eventNumber << std::endl;

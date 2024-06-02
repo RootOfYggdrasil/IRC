@@ -37,3 +37,24 @@ void Client::addChannel(Channel *channel)
 	if(channel && this->_connectedOnChannel.find(channel->getName()) == _connectedOnChannel.end())
 		this->_connectedOnChannel[channel->getName()] = channel;
 }
+
+void Client::deleteChannelJoined(Channel *ch)
+{
+	if (ch)
+	{
+		std::map<std::string, Channel *>::iterator it = _connectedOnChannel.find(ch->getName());
+		if (it != _connectedOnChannel.end())
+			_connectedOnChannel.erase(it);
+	}
+}
+/*
+void Client::deleteClFromCh(Server &server)
+{
+	for (std::map<std::string, Channel *>::iterator it = _connectedOnChannel.begin(); it != _connectedOnChannel.end(); it++)
+	{
+		it->second->deleteClient(this);
+		if (it->second->getClients().size() == 0)
+			server.deleteChannel(it->second);
+	}
+}*/
+

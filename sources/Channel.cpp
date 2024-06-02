@@ -86,6 +86,18 @@ std::vector<Client*>	Channel::getLoggedClients()
 	return (vLoggedClients);
 }
 
+std::vector<Client*>	Channel::getOperatorClients()
+{
+	std::vector<Client*>	vOperatorClients;
+
+	for (auto it = this->_operatorClients.begin(); it != this->_operatorClients.end(); it++)
+	{
+		if (this->isOperator(*it->second))
+			vOperatorClients.push_back(it->second);
+	}
+	return (vOperatorClients);
+}
+
 void	Channel::setTopic(std::string topic)
 {
 	this->_topic = topic;
@@ -127,4 +139,29 @@ void	Channel::addClient(Client *client)
 		this->_clients[client->getNickname()] = client;
 }
 
+void	Channel::sendToAllClients(const std::string &msg)
+{
+	/*for (std::map<std::string, Client *>::iterator	it = this->_clients.begin(); it != this->_clients.end(); ++it)
+	{
+		if (it->second)
+			send(it->second->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}*/
+	std::vector<Client *> allLoggedClient = this->getLoggedClients();
+	for (std::vector<Client *>::iterator it = allLoggedClient.begin(); it != allLoggedClient.end(); ++it)
+		send((*it)->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+}
+
+void	Channel::deleteClient(Client *client)
+{
+	std::map<std::string, Client *>::iterator it = this->_clients.find(client->getNickname());
+	if (it != this->_clients.end())
+		this->_clients.erase(it);
+}
+
+void	Channel::deleteClient(std::string nickname)
+{
+	std::map<std::string, Client *>::iterator it = this->_clients.find(nickname);
+	if (it != this->_clients.end())
+		this->_clients.erase(it);
+}
 
