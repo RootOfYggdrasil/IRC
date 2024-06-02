@@ -190,7 +190,6 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 		std::cout << client.getNickname() << " now has registered." << std::endl;
 
 		std::string welcome = ":ircserv 001 " + client.getNickname() + " :Welcome to the 42 IRC Network " + client.getNickname() + "!\r\n";
-		//send(client.getFd(), welcome.c_str(), welcome.size(), MSG_DONTWAIT | MSG_NOSIGNAL);		
 		client.setIsLogged(true);
 		this->_newCltoRegister.remove(&client);
 		this->_clients[client.getNickname()] = &client;
@@ -269,9 +268,8 @@ void	Server::InitializeServer(void)
 	std::cout << "Socket: " << this->_serverSocket << std::endl;
 }
 
-void	Server::Run(void)
+void	Server::Run()
 {
-	_fdCounter = 1;
 	int newFdSocket = 0;
 
 	if (!this->_isInitialized)
@@ -286,7 +284,6 @@ void	Server::Run(void)
 			std::cout << "Event Detected! Nr: " << eventNumber << std::endl;
 			for(int i = 0; i < eventNumber; i++)
 			{
-		
 				//if the event is on the server socket
 				if(this->_maxEvents[i].data.fd == this->_serverSocket) 
 				{
@@ -377,16 +374,6 @@ void	Server::Run(void)
 	close(this->_epollFD);
 	close(this->_serverSocket);
 }
-
-// void Server::fdClose(void)
-// {
-// 	close(this->_serverSocket);
-// 	close(this->_epollFD);
-// 	this->_isRunning = false;
-// 	this->_isInitialized = false;
-// 	std::cout << "Server Closed" << std::endl;
-// }
-
 
 void	Server::addChannel(Channel *channel)
 {
