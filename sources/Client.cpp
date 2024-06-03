@@ -13,7 +13,7 @@ Client& Client::operator=(const Client &op)
 
 Client::~Client(){}
 
-const int Client::getFd() const {return this->_clientFd;}
+int Client::getFd() const {return this->_clientFd;}
 bool Client::getIsLogged() const {return this->_isLogged;}
 std::string  Client::getNickname() const {return this->_nickname;}
 std::string  Client::getBuffer() const {return this->_buffer;}

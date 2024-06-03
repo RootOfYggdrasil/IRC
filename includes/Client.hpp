@@ -28,7 +28,7 @@ class Client {
 		Client &operator=(const Client &op);
 		~Client(void);
 
-		const int getFd() const;
+		int getFd() const;
 		bool getIsLogged() const;
 		bool getPw() const;
 		const std::string &getUsername() const;

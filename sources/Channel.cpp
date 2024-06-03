@@ -25,6 +25,19 @@ Channel::Channel(std::string name, std::string password)
 	this->_clientsMax = 0;
 }
 
+Channel::Channel(std::string name, std::string password, Client &client)
+{
+	this->_name = toLowerString(name);
+	this->_password = password;
+	this->_topic = "";
+	this->_creationTime = "";
+	this->_inviteOnly = false;
+	this->_topicRestrict = false;
+	this->_clientsMax = 0;
+	this->_clients[client.getNickname()] = &client;
+	this->_operatorClients[client.getNickname()] = &client;
+}
+
 Channel::~Channel() {}
 
 Channel& Channel::operator=(const Channel &op)
@@ -81,6 +94,19 @@ std::vector<Client*>	Channel::getLoggedClients()
 	for (auto it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
 		if (it->second->getIsLogged())
+			vLoggedClients.push_back(it->second);
+	}
+	return (vLoggedClients);
+}
+
+//ignoring the client that is sending the message
+std::vector<Client*>	Channel::getLoggedClients(Client &client)
+{
+	std::vector<Client*>	vLoggedClients;
+
+	for (auto it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (it->second->getIsLogged() && it->second->getNickname() != client.getNickname())
 			vLoggedClients.push_back(it->second);
 	}
 	return (vLoggedClients);

@@ -157,7 +157,7 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 
 void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 {
-	std::string cmd = pVector[0];
+	std::string cmd = toUpperString(pVector[0]);
 	std::map<std::string, functionCmd>::iterator it = this->_commands.find(toUpperString(cmd));
 
 	if (!pVector.size())
@@ -228,6 +228,9 @@ void Server::handleMessage(Client &client, const char *msg)
 		std::getline(iss, line);
 		std::cout << "Line: " << line << std::endl;
 		std::vector<std::string> commands = splitCmd(line);
+		if (commands.size() == 0)
+			break;
+		commands[0] = toUpperString(commands[0]);
 		if (client.getIsLogged())
 		{
 			handleCommand(client, commands);

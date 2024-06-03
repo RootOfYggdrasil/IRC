@@ -7,9 +7,9 @@ C = \033[0;96m
 W = \033[1;97m
 
 NAME = ircserv
-CC	= c++ -g
+CC	= c++
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98
+CPPFLAGS = -g -Wall -Wextra -Werror -std=c++98
 
 RM = rm -f
 
@@ -24,18 +24,15 @@ SRC =	main \
 EXTENSION = .cpp
 SRCFC	= $(addsuffix $(EXTENSION), $(SRC))
 
-OBJ = $(SRCFC:.cpp=.o)
-
-$(NAME): $(OBJ)
-	@echo "$(OBJ)"
+$(NAME):  $(SRCFC)
+	@echo "$(SRCFC)"
 	@echo "$(C)Compiling $(NAME) $(DEF_COLOR)"
-	$(CC) $(OBJ) $(CFLAGS) -o $(NAME) -I includes/
+	$(CC) $(SRCFC) $(CPPFLAGS) -o $(NAME) -I includes/
 	@echo "'${G}all${DEF_COLOR}' for mandatory ${NAME} executed successfully!"
 
 all: $(NAME)
 
 clean:
-	$(RM) $(OBJ)
 	@echo "'${G}clean${DEF_COLOR}' for ${NAME} executed successfully!"
 
 fclean: clean

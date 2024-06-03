@@ -27,7 +27,7 @@ void	addClientToChannel(Server &server, Client &client, std::string channelName,
 
 	if (channel == NULL)
 	{
-		channel = new Channel(toLowerStr(channelName), password);
+		channel = new Channel(toLowerStr(channelName), password, client);
 		server.addChannel(channel);
 		client.addChannel(channel);
 	}
@@ -142,10 +142,9 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 	}
 	else
 	{
-		std::vector<Client *> clientToMsg = channel->getLoggedClients();
+		std::vector<Client *> clientToMsg = channel->getLoggedClients(client);
 		for (size_t i = 0; i < clientToMsg.size(); i++)
 		{
-			std::cout << "clientToMsg: " << clientToMsg[i]->getNickname() << std::endl;
 			clientMsg = ":" + client.getNickname() + "! PRIVMSG " + channelName + " :" + msg + "\r\n";
 			send(clientToMsg[i]->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		}
@@ -156,6 +155,7 @@ void	sendMsgToClient(Server &server, Client &client, std::string target, std::st
 {
 	std::string clientMsg = "";
 	Client *targetClient = server.getClient(target);
+	std::cout << "target: " << target << std::endl;
 	if (!targetClient)
 	{
 		clientMsg = "401 " + client.getNickname() + " " + target + " :No such nick\r\n";
@@ -217,6 +217,7 @@ void	Command::nick(Server &server, Client &client, std::vector<std::string> &vAr
 
 void	Command::kick(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+	(void)server;
 	std::string clientMsg = "";
 	if (vArguments.size() < 2)
 	{
@@ -231,7 +232,7 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 
 void	Command::quit(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
-
+	(void)server;
 	// come si disconnette?
 	std::string clientMsg = "";
 	if (vArguments.size() < 1)
@@ -249,6 +250,7 @@ void	Command::quit(Server &server, Client &client, std::vector<std::string> &vAr
 
 void	Command::topic(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+	(void)server;
 	std::string clientMsg = "";
 	Channel *channel = client.getChannel(vArguments[0]);
 	if(!channel)
@@ -281,6 +283,7 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 
 void	Command::mode(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+	(void)server;
 	/*
 	i: +-i Set/remove Invite-only channel
 	t: +-t Set/remove the restrictions of the TOPIC command to channel operators
@@ -295,7 +298,7 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 		clientMsg = "461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 	else
 	{
-		if (vArguments[0].length() > 2 && !vArguments[0][0] == '+' && !vArguments[0][0] == '-')
+		if (vArguments[0].length() > 2 && vArguments[1][0] != '+' && vArguments[1][0] != '-')
 			clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
 		//else if (vArguments[0][1] == '+')
 		//	clientMsg = handle
@@ -306,6 +309,7 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 
 void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+	(void)server;
 	std::string clientMsg = "";
 	if (vArguments.size() < 1)
 	{
@@ -320,6 +324,7 @@ void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArg
 
 void	Command::user(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
+	(void)server;
 	std::string clientMsg = "";
 	//da implementare se gia registrato
 	if (vArguments.size() < 1)

@@ -30,6 +30,7 @@ class Channel {
 		Channel();
 		Channel(std::string name);
 		Channel(std::string name, std::string password);
+		Channel(std::string name, std::string password, Client &client);
 		Channel &operator=(const Channel &op);
 		~Channel();
 
@@ -41,6 +42,7 @@ class Channel {
 		std::string	getTopic();
 		std::map<std::string, Client*> &getClients();
 		std::vector<Client*>	getLoggedClients();
+		std::vector<Client*>	getLoggedClients(Client &client);
 		std::vector<Client*>	getOperatorClients();
 
 		void	setTopic(std::string topic);
