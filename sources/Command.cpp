@@ -279,7 +279,64 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 	
 }
 
-
+void	handleModeOption(Client &client, std::string channelName, std::string mode)
+{
+	Channel *channel = client.getChannel(channelName);
+	if (!channel)
+		return;
+	if (mode[0] == '+')
+	{
+		for (size_t i = 1; i < mode.size(); i++)
+		{
+			switch (mode[i])
+			{
+			case 'i':
+				channel->setInviteOnly(true);
+				break;
+			case 't':
+				channel->setTopicRestrict(true);
+				break;
+			case 'k':
+				//channel->setPassword();
+				break;
+			case 'o':
+				//channel->setOperator();
+				break;
+			case 'l':
+				//channel->setClientsMax();
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	else if (mode[0] == '-')
+	{
+		for (size_t i = 1; i < mode.size(); i++)
+		{
+			switch (mode[i])
+			{
+			case 'i':
+				channel->setInviteOnly(false);
+				break;
+			case 't':
+				channel->setTopicRestrict(false);
+				break;
+			case 'k':
+				//channel->setPassword();
+				break;
+			case 'o':
+				//channel->setOperator();
+				break;
+			case 'l':
+				//channel->setClientsMax();
+				break;
+			default:
+				break;
+			}
+		}
+	}
+}
 
 void	Command::mode(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
@@ -291,17 +348,25 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 	o: -+o [tizio] Give/take channel operator privilege
 	l: +-l [number] Set/remove the user lim it to channel*/
 	std::string clientMsg = "";
+	Channel *channel = NULL;
 
-	if (vArguments.size() == 1 && vArguments[0][0] == '#')
+	if (vArguments.size() == 1 && vArguments[1][0] == '#')
 		return;
 	if (vArguments.size() < 2)
 		clientMsg = "461 " + client.getNickname() + " MODE :Not enough parameters\r\n";
 	else
 	{
-		if (vArguments[0].length() > 2 && vArguments[1][0] != '+' && vArguments[1][0] != '-')
+		if (vArguments[0][0] != '#')
+			return;
+		channel = client.getChannel(vArguments[0]);
+		if (!channel)
+			clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
+		else if (vArguments[1].length() > 2 && vArguments[1].length() == 2 && vArguments[1][0] != '+' && vArguments[1][0] != '-')
 			clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
-		//else if (vArguments[0][1] == '+')
-		//	clientMsg = handle
+		else if (channel->isOperator(client))
+			clientMsg = "482 " + client.getNickname() + " :You're not channel operator\r\n";
+		else
+			handleModeOption(client, vArguments[0], vArguments[1]);
 	}
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }

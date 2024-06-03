@@ -1,9 +1,9 @@
 
 #include "../includes/Server.hpp"
 
-char hostname[1024]{};
+char hostname[1024] = {};
 
-Server::Server(in_port_t port, std::string password) : _port(port), _serverSocket(0), _fdCounter(4), _password(password), _okPw(password.compare("") != 0) 
+Server::Server(in_port_t port, std::string password) : _port(port), _password(password), _serverSocket(0), _fdCounter(4), _okPw(password.compare("") != 0) 
 {
 	srand(time(0));
 	_commands["QUIT"] = &Command::quit;
@@ -93,31 +93,27 @@ void	Server::deleteChannel(const std::string &nameChannel)
 /*cerca un Client con un fd specificato prima nella mappa _clients e poi nella lista _newClient_toRegister. 
 Se trova il client, restituisce il puntatore a quell'oggetto Client.
 Se non trova nessun client con l'fd specificato, restituisce NULL.*/
-Client* Server::getClientComparingfFd(int fd) const
-{
-    // Lambda function to compare fd
-    auto compareFd = [fd](const Client* client) {
-        return client && client->getFd() == fd;
-    };
+Client* Server::getClientComparingfFd(int file) const {
 
     // Search in the _clients map
-    auto it = std::find_if(_clients.begin(), _clients.end(),
-        [&compareFd](const std::pair<std::string, Client*>& pair) {
-            return compareFd(pair.second);
-        });
+    std::map<std::string, Client*>::const_iterator itstart = this->_clients.begin();
     
-    if (it != _clients.end()) {
-        return it->second;
+	while (itstart != this->_clients.end()) {
+		if (itstart->second && itstart->second->getFd() == file) 
+       		return itstart->second;
+		++itstart;
     }
 
-    // Search in the _clientsNotRegistered list
-    auto lit = std::find_if(_newCltoRegister.begin(), _newCltoRegister.end(), compareFd);
-    
-    if (lit != _newCltoRegister.end()) {
-        return *lit;
-    }
+    // Search in the _newCltoRegister list
+    std::list<Client*>::const_iterator litstart = this->_newCltoRegister.begin();
 
-    return nullptr;
+    while (litstart != this->_newCltoRegister.end()) {
+		if (*litstart && (*litstart)->getFd() == file)
+        	return *litstart;
+		++litstart;
+    }
+	// Not found
+    return NULL;
 }
 
 std::vector<std::string> Server::splitCmd(const std::string &line)
@@ -281,6 +277,7 @@ void	Server::InitializeServer(void)
 	std::cout << "Server Initialized on port " << this->_port << std::endl;
 	std::cout << "Password: " << this->_password << std::endl;
 	std::cout << "Socket: " << this->_serverSocket << std::endl;
+	std::cout << "Hostname: " << hostname << std::endl;
 }
 
 void	Server::Run()

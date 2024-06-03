@@ -156,7 +156,7 @@ void	Channel::setClientsMax(int clientsMax)
 
 bool	Channel::isOperator(Client &client)
 {
-	return (this->_clients.find(client.getNickname()) != this->_clients.end());
+	return (this->_operatorClients.find(client.getNickname()) != this->_operatorClients.end());
 }
 
 void	Channel::addClient(Client *client)

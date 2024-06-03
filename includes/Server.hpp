@@ -73,7 +73,7 @@ class Server {
 		void setPort(const in_port_t &port);
 		void setSocket(int _serverSocketFd);
 
-		Client *getClientComparingfFd(int fd) const;
+		Client* getClientComparingfFd(int file) const;
 		Client *getClient(const std::string &nickname) const;
 		Channel *getChannel(const std::string &channelName) const;	
 
