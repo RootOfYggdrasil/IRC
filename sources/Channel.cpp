@@ -91,7 +91,7 @@ std::vector<Client*>	Channel::getLoggedClients()
 {
 	std::vector<Client*>	vLoggedClients;
 
-	for (auto it = this->_clients.begin(); it != this->_clients.end(); it++)
+	for (std::map<std::string, Client*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
 		if (it->second->getIsLogged())
 			vLoggedClients.push_back(it->second);
@@ -104,7 +104,7 @@ std::vector<Client*>	Channel::getLoggedClients(Client &client)
 {
 	std::vector<Client*>	vLoggedClients;
 
-	for (auto it = this->_clients.begin(); it != this->_clients.end(); it++)
+	for (std::map<std::string, Client*>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
 		if (it->second->getIsLogged() && it->second->getNickname() != client.getNickname())
 			vLoggedClients.push_back(it->second);
@@ -116,7 +116,7 @@ std::vector<Client*>	Channel::getOperatorClients()
 {
 	std::vector<Client*>	vOperatorClients;
 
-	for (auto it = this->_operatorClients.begin(); it != this->_operatorClients.end(); it++)
+	for (std::map<std::string, Client*>::iterator it = this->_operatorClients.begin(); it != this->_operatorClients.end(); it++)
 	{
 		if (this->isOperator(*it->second))
 			vOperatorClients.push_back(it->second);

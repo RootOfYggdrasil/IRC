@@ -23,7 +23,7 @@ Channel *Client::getChannel(const std::string &channelName) const
 {
 	if(this->_connectedOnChannel.find(channelName) != this->_connectedOnChannel.end())
 		return this->_connectedOnChannel.at(channelName);
-	return nullptr;
+	return NULL;
 }
 
 void Client::setIsLogged(bool logged) {_isLogged = logged;}
