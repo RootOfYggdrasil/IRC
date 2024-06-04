@@ -31,6 +31,7 @@ class Command {
 		static void mode(Server &server, Client &client, std::vector<std::string> &vArguments);
 		static void inv(Server &server, Client &client, std::vector<std::string> &vArguments);
 		static void user(Server &server, Client &client, std::vector<std::string> &vArguments);
+		static void password(Server &server, Client &client, std::vector<std::string> &v);
 }; 
 
 #endif
