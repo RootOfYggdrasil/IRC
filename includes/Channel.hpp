@@ -50,6 +50,8 @@ class Channel {
 		void	setTopicRestrict(bool topicRestrict);
 		void	setInviteOnly(bool inviteOnly);
 		void	setClientsMax(int clientsMax);
+		void	setPassword(std::string password);
+		void	setName(std::string name);
 
 
 		bool	isOperator(Client &client);

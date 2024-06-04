@@ -279,7 +279,7 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 	
 }
 
-void	handleModeOption(Client &client, std::string channelName, std::string mode)
+void	handleModeOption(Client &client, std::string channelName, std::string mode, std::string extra)
 {
 	Channel *channel = client.getChannel(channelName);
 	if (!channel)
@@ -297,13 +297,13 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode)
 				channel->setTopicRestrict(true);
 				break;
 			case 'k':
-				//channel->setPassword();
+				channel->setPassword(extra);
 				break;
 			case 'o':
-				//channel->setOperator();
+				//channel->AddOperator();
 				break;
 			case 'l':
-				//channel->setClientsMax();
+				channel->setClientsMax(atoi(extra.c_str()));
 				break;
 			default:
 				break;
@@ -323,13 +323,13 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode)
 				channel->setTopicRestrict(false);
 				break;
 			case 'k':
-				//channel->setPassword();
+				channel->setPassword("");
 				break;
 			case 'o':
-				//channel->setOperator();
+				//channel->deleteOperator(extra);
 				break;
 			case 'l':
-				//channel->setClientsMax();
+				channel->setClientsMax(0);
 				break;
 			default:
 				break;
@@ -365,8 +365,10 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 			clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
 		else if (channel->isOperator(client))
 			clientMsg = "482 " + client.getNickname() + " :You're not channel operator\r\n";
+		else if (vArguments.size() > 2)
+			handleModeOption(client, vArguments[0], vArguments[1], vArguments[2]);
 		else
-			handleModeOption(client, vArguments[0], vArguments[1]);
+			handleModeOption(client, vArguments[0], vArguments[1], "");
 	}
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
@@ -400,6 +402,3 @@ void	Command::user(Server &server, Client &client, std::vector<std::string> &vAr
 		client.setUsername(vArguments[0]);
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
-
-
-

@@ -154,6 +154,16 @@ void	Channel::setClientsMax(int clientsMax)
 	this->_clientsMax = clientsMax;
 }
 
+void	Channel::setPassword(std::string password)
+{
+	this->_password = password;
+}
+
+void	Channel::setName(std::string name)
+{
+	this->_name = name;
+}
+
 bool	Channel::isOperator(Client &client)
 {
 	return (this->_operatorClients.find(client.getNickname()) != this->_operatorClients.end());

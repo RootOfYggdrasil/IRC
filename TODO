@@ -33,3 +33,20 @@ Creare struttura:
 	-	KICK	
 	-	TOPIC	V
 	-	INVITE
+SUBJECT Richieste:
+  -authenticate
+  -set a nickname DONE: to be tested
+  -set a username DONE: to be tested
+  -join a channel DONE: to be tested  
+  -send and receive private messages DONE: to be tested
+  -send and receive channel messages DONE: to be tested
+  - command: Kick
+  - command: Invite
+  - command: Topic 
+  - command: Mode Done: to be testedt
+    - +-i
+    - +-o
+    - +-t
+    - +-k
+    - +-l
+  - Partial data
