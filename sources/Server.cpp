@@ -15,6 +15,7 @@ Server::Server(in_port_t port, std::string password) : _port(port), _password(pa
 	_commands["PRIVMSG"] = &Command::privmsg;
 	_commands["NICK"] = &Command::nick;
 	_commands["BOT"] = &Command::bot;
+	_commands["password"] = &Command::password;
 	Channel *welcome = new Channel("#welcome");
 	addChannel(welcome);
 
@@ -175,6 +176,8 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (!this->_okPw)
 		client.setPw(true);
+	// if ((!client.getPw) && !cmd.compare("PASS"))  da implementare il comdando pass
+	// 	Command::pass(*this, client, pVector);
 	if (!cmd.compare("NICK"))
 	 	Command::nick(*this, client, pVector);
 	if (!cmd.compare("USER"))

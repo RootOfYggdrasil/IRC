@@ -119,6 +119,29 @@ void	Command::join(Server &server, Client &client, std::vector<std::string> &vAr
 	}
 }
 
+void Command::password(Server &server, Client &client, std::vector<std::string> &v)
+{
+ 	if (v.size() < 1)
+ 	{
+ 		std::string error = "461 " + client.getNickname() + " PASSWORD :Not enough parameters\r\n";
+ 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+ 		return;
+ 	}
+ 	if(client.getIsLogged())
+ 	{
+ 		std::string error = "462 " + client.getNickname() + " :Already registered\r\n";
+ 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+ 		return;
+ 	}
+ 	if (v[0].compare(server.getPw()))
+ 	{
+ 		std::string error = "464 " + client.getNickname() + " :Password incorrect\r\n";
+ 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+ 		return;
+ 	}
+ 	client.setPw(true);
+}
+
 std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);
