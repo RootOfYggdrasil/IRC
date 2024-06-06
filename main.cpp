@@ -23,18 +23,21 @@ in_port_t	portChecker(std::string string)
 
 int main(int argc, char **argv)
 {
+	unsigned long int *fdCounter = new unsigned long int(0);
+	
 	if (argc != 3)
 	{
 		std::cerr << "Usage: ./irc <port> <password>" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+
 	Server server(portChecker(argv[1]), argv[2]);
 	try
 	{
 		signal(SIGINT, Server::checkSignal);
 		signal(SIGQUIT, Server::checkSignal);
 		server.InitializeServer();
-		server.Run();
+		server.Run(fdCounter);
 	}
 	catch(const std::exception& e)
 	{

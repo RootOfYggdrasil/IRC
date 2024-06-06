@@ -121,25 +121,18 @@ void	Command::join(Server &server, Client &client, std::vector<std::string> &vAr
 
 void Command::password(Server &server, Client &client, std::vector<std::string> &v)
 {
+	std::string clientMsg = "";
  	if (v.size() < 1)
- 	{
- 		std::string error = "461 " + client.getNickname() + " PASSWORD :Not enough parameters\r\n";
- 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
- 		return;
- 	}
+ 		clientMsg = "461 " + client.getNickname() + " PASSWORD :Not enough parameters\r\n";
  	if(client.getIsLogged())
- 	{
- 		std::string error = "462 " + client.getNickname() + " :Already registered\r\n";
- 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
- 		return;
- 	}
- 	if (v[0].compare(server.getPw()))
- 	{
- 		std::string error = "464 " + client.getNickname() + " :Password incorrect\r\n";
- 		send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
- 		return;
- 	}
- 	client.setPw(true);
+ 		clientMsg= "462 " + client.getNickname() + " :Already registered\r\n";
+ 	if (v[0].compare(server.getPw()) != 0)
+ 		clientMsg = "464 " + client.getNickname() + " :Password incorrect\r\n";
+	else
+		client.setPw(true);
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+
+ 	
 }
 
 std::vector<std::string> split(const std::string& str, char delimiter) {

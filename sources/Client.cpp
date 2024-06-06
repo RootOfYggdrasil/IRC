@@ -1,7 +1,7 @@
 
 #include "../includes/Client.hpp"
 
-Client::Client(void) : _clientFd(-1), _nickname("redelpipo"), _user("el-pipon"), _isLogged(true), _hasPw(true) {}
+Client::Client(void) : _clientFd(-1), _nickname("redelpipo"), _user("el-pipon"), _isLogged(true), _hasPw(false) {}
 
 Client::Client(int fd) : _clientFd(fd), _nickname(""), _user(""), _isLogged(false), _hasPw(false){}
 

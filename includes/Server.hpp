@@ -63,7 +63,7 @@ class Server {
 		Server(in_port_t port, std::string password);
 		~Server();
 		void InitializeServer();
-		void Run();
+		void Run(unsigned long int *fdcounter);
 
 		int getPort() const;
 		int getSocket() const;

@@ -15,7 +15,7 @@ Server::Server(in_port_t port, std::string password) : _port(port), _password(pa
 	_commands["PRIVMSG"] = &Command::privmsg;
 	_commands["NICK"] = &Command::nick;
 	_commands["BOT"] = &Command::bot;
-	_commands["password"] = &Command::password;
+	_commands["PASS"] = &Command::password;
 	Channel *welcome = new Channel("#welcome");
 	addChannel(welcome);
 
@@ -174,22 +174,20 @@ void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 		return;
 	cmd = pVector[0];
 	pVector.erase(pVector.begin());
-	if (!this->_okPw)
-		client.setPw(true);
-	// if ((!client.getPw) && !cmd.compare("PASS"))  da implementare il comdando pass
-	// 	Command::pass(*this, client, pVector);
-	if (!cmd.compare("NICK"))
+	if ((!client.getPw()) && !cmd.compare("PASS"))
+	 	Command::password(*this, client, pVector);
+	else if (client.getPw() && !cmd.compare("NICK"))
 	 	Command::nick(*this, client, pVector);
-	if (!cmd.compare("USER"))
+	else if (client.getPw() && !cmd.compare("USER"))
 		Command::user(*this, client, pVector);
-	// else {
-	// 	std::string error = "451 " + client.getNickname() + " :You have not registered\r\n";
-	// 	std::cout << "Error: " << error << std::endl;
-	//  	send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-	//  	return ;
-	// }
+	else {
+	 	std::string error = "451 " + client.getNickname() + " :You have not registered\r\n";
+	 	std::cout << "Error: " << error << std::endl;
+	 	send(client.getFd(), error.c_str(), error.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	  	return ;
+	}
 	std::cout << "Client " << client.getNickname() << " user " << client.getUsername() << std::endl;
-	if (!client.getNickname().empty() && !client.getUsername().empty())
+	if (!client.getNickname().empty() && !client.getUsername().empty() && client.getPw())
 	{
 		if(this->getClient(client.getNickname())) {
 			std::string error = "433 " + client.getNickname() + " :Nickname already in use\r\n";
@@ -283,9 +281,9 @@ void	Server::InitializeServer(void)
 	std::cout << "Hostname: " << hostname << std::endl;
 }
 
-void	Server::Run()
+void	Server::Run(unsigned long int *fdcounter)
 {
-	unsigned long int _fdCounter = 1;
+	fdcounter = &_fdCounter;
 	int newFdSocket = 0;
 
 	if (!this->_isInitialized)
