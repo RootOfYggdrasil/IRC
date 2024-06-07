@@ -60,6 +60,9 @@ class Channel {
 		void	deleteClient(Client *client);
 		void	deleteClient(std::string nickname);
 
+		bool	isClientOnChannel(std::string nickname);
+		int		getClientCount();
+
 }; 
 
 #endif

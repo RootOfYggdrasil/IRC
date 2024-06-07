@@ -201,3 +201,12 @@ void	Channel::deleteClient(std::string nickname)
 		this->_clients.erase(it);
 }
 
+bool	Channel::isClientOnChannel(std::string nickname)
+{
+	return (this->_clients.find(nickname) != this->_clients.end());
+}
+
+int		Channel::getClientCount()
+{
+	return (this->_clients.size());
+}

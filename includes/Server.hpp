@@ -63,12 +63,11 @@ class Server {
 		Server(in_port_t port, std::string password);
 		~Server();
 		void InitializeServer();
-		void Run(unsigned long int *fdcounter);
+		void Run();
 
 		int getPort() const;
 		int getSocket() const;
 		const std::string getPw() const;
-
 
 		void setPort(const in_port_t &port);
 		void setSocket(int _serverSocketFd);
@@ -90,6 +89,7 @@ class Server {
 		void addClient(Client *client);
 		void addChannel(Channel *channel);
 		void sendToAll(const std::string &msg);
+		bool existsClient(const std::string &nickname) const;
 		
 }; 
 

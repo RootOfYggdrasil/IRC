@@ -71,7 +71,6 @@ Client *Server::getClient(const std::string &nickname) const
 
 Channel *Server::getChannel(const std::string &channelName) const
 {
-	//da vedere se ci sono indicazioni da rispettare es toLower
 	Channel *ch = NULL;
 	std::map<std::string, Channel*>::const_iterator it = this->_channels.find(toLowerString(channelName));
 	if (it != _channels.end())
@@ -132,7 +131,9 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 			if (last.size() + cmd.size())
 			{
 				if (!cmd.empty())
-					commands.push_back(cmd + " " + last);
+				{
+					last.size() == 0 ? commands.push_back(cmd) : commands.push_back(cmd + " " + last);
+				}
 				else
 					commands.push_back(cmd);
 			}
@@ -162,7 +163,7 @@ void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (it != this->_commands.end())
 	{
-		this->_commands[cmd](*this, client, pVector); //verificare se funziona 
+		this->_commands[cmd](*this, client, pVector);  
 	}
 }
 
@@ -281,8 +282,9 @@ void	Server::InitializeServer(void)
 	std::cout << "Hostname: " << hostname << std::endl;
 }
 
-void	Server::Run(unsigned long int *fdcounter)
+void	Server::Run()
 {
+	unsigned long int *fdcounter;
 	fdcounter = &_fdCounter;
 	int newFdSocket = 0;
 
@@ -303,7 +305,7 @@ void	Server::Run(unsigned long int *fdcounter)
 				{
 					newFdSocket = accept(this->_serverSocket, NULL, NULL);
 					
-					if(_fdCounter >= 1024 - 1)
+					if(*fdcounter >= 1024 - 1)
 					{
 						send(newFdSocket, ":ircserv QUIT :The server is full!\r\n", 37, MSG_DONTWAIT | MSG_NOSIGNAL);
 						send(newFdSocket, "", 0, MSG_DONTWAIT | MSG_NOSIGNAL);
@@ -312,19 +314,20 @@ void	Server::Run(unsigned long int *fdcounter)
 					}
 					if(fcntl(newFdSocket, F_SETFL, O_NONBLOCK) == -1)
 						throw std::runtime_error("ERROR: fcntl failed");
+
 					this->_ev.events = EPOLLIN | EPOLLET;
 					this->_ev.data.fd = newFdSocket;
 					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, newFdSocket, &this->_ev) == -1)
 						throw std::runtime_error("ERROR: epoll ctl failed");
 					std::cout << "New Client Connected: " << newFdSocket << std::endl;
-					_fdCounter++;
+					fdcounter++;
 					
-					//fd in non registered client list
-					Client* newClient = new Client(newFdSocket);
-					if (newClient != 0)
+					//fd of non registered client insert in the list
+					Client *newClient = new Client(newFdSocket);
+					if (newClient)
 					{
-						std::string	RPL_INFO = ":ircserv INFO :Connected to 42IRC server!\r\n";
-						send(newFdSocket, RPL_INFO.c_str(), RPL_INFO.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+						std::string	msgInfo = ":ircserv INFO :Connecting to 42IRC server!\r\n";
+						send(newFdSocket, msgInfo.c_str(), msgInfo.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 						_newCltoRegister.push_back(newClient);
 					}
 				}
@@ -345,7 +348,7 @@ void	Server::Run(unsigned long int *fdcounter)
 						std::cout << "Client <"	<< clientFdSocket << "> Disconnected" << std::endl;
 						close(clientFdSocket);
 						epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, clientFdSocket, NULL);
-						_fdCounter--;
+						fdcounter--;
 						//remove client from _clients ma
 						if (newCL != NULL)
 						{
@@ -369,7 +372,7 @@ void	Server::Run(unsigned long int *fdcounter)
 	{
 		send((*it)->getFd(), ":ircserv QUIT :The server is disconnected!\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, (*it)->getFd(), NULL);
-		_fdCounter--;
+		fdcounter--;
 		if((*it)->getFd() >= 0)
 			close((*it)->getFd());
 		delete *it;
@@ -378,7 +381,7 @@ void	Server::Run(unsigned long int *fdcounter)
 	{
 		send(it->second->getFd(), ":ircserv QUIT :The server is disconnected!\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, it->second->getFd(), NULL);
-		_fdCounter--;
+		fdcounter--;
 		if(it->second->getFd() >= 0)
 			close(it->second->getFd());
 		delete it->second;
@@ -408,4 +411,9 @@ void Server::sendToAll(const std::string &msg)
 		if (it->second)
 			send(it->second->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 	}
+}
+
+bool Server::existsClient(const std::string &nickname) const
+{
+	return (this->_clients.find(nickname) != this->_clients.end());
 }
