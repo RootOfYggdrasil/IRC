@@ -40,12 +40,12 @@ SUBJECT Richieste:
   -join a channel DONE: to be tested  
   -send and receive private messages DONE: to be tested
   -send and receive channel messages DONE: to be tested
-  - command: Kick 
-  - command: Invite 
-  - command: Topic 
+  - command: Kick //da controllare nei join
+  - command: Invite //da controllare nei join
+  - command: Topic //da controllare nei join
   - command: Mode Done: to be testedt
     - +-i //da controllare nei join
-    - +-o //da fare
+    - +-o //da controllare nei join
     - +-t //da controllare nel topic
     - +-k //da controllare nei join
     - +-l //da controllare nei join

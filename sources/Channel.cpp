@@ -210,3 +210,50 @@ int		Channel::getClientCount()
 {
 	return (this->_clients.size());
 }
+
+Client	Channel::getClient(std::string nickname)
+{
+	std::map<std::string, Client *>::iterator it = this->_clients.find(nickname);
+	if (it != this->_clients.end())
+		return (*it->second);
+	return (Client());
+}
+
+void	Channel::deleteOperatorClient(Client *client)
+{
+	std::map<std::string, Client *>::iterator it = this->_operatorClients.find(client->getNickname());
+	if (it != this->_operatorClients.end())
+		this->_operatorClients.erase(it);
+}
+
+void	Channel::deleteOperatorClient(std::string nickname)
+{
+	std::map<std::string, Client *>::iterator it = this->_operatorClients.find(nickname);
+	if (it != this->_operatorClients.end())
+		this->_operatorClients.erase(it);
+}
+
+void	Channel::addOperatorClient(Client *client)
+{
+	if (client && this->_operatorClients.find(client->getNickname()) == this->_operatorClients.end())
+		this->_operatorClients[client->getNickname()] = client;
+}
+
+void	Channel::addOperatorClient(std::string nickname)
+{
+	if (this->_clients.find(nickname) != this->_clients.end())
+		this->_operatorClients[nickname] = this->_clients[nickname];
+}
+
+void	Channel::addInvitedClient(Client *client)
+{
+	if (client && this->_invitedClients.find(client->getNickname()) == this->_invitedClients.end())
+		this->_invitedClients[client->getNickname()] = client;
+}
+
+void	Channel::removeInvitedClient(Client *client)
+{
+	std::map<std::string, Client *>::iterator it = this->_invitedClients.find(client->getNickname());
+	if (it != this->_invitedClients.end())
+		this->_invitedClients.erase(it);
+}

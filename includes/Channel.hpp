@@ -21,6 +21,7 @@ class Channel {
 		bool		_topicRestrict;
 
 		int			_clientsMax;
+		std::map<std::string, Client*>	_invitedClients;
 		std::map<std::string, Client*>	_clients;
 		std::map<std::string, Client*>	_operatorClients;
 		//clients
@@ -59,10 +60,17 @@ class Channel {
 		void 	sendToAllClients(const std::string &msg);
 		void	deleteClient(Client *client);
 		void	deleteClient(std::string nickname);
+		void	deleteOperatorClient(Client *client);
+		void	deleteOperatorClient(std::string nickname);
+		void	addOperatorClient(Client *client);
+		void	addOperatorClient(std::string nickname);
+		void	addInvitedClient(Client *client);
+		void	removeInvitedClient(Client *client);
+		void	removeInvitedClient(std::string nickname);
 
 		bool	isClientOnChannel(std::string nickname);
 		int		getClientCount();
-
+		Client	getClient(std::string nickname);
 }; 
 
 #endif
