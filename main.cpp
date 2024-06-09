@@ -28,18 +28,14 @@ int main(int argc, char **argv)
 		std::cerr << "Usage: ./irc <port> <password>" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
-	Server server(portChecker(argv[1]), std::string(argv[2]));
 	try
 	{
-		signal(SIGINT, Server::checkSignal);
-		signal(SIGQUIT, Server::checkSignal);
+		Server server(portChecker(argv[1]), std::string(argv[2]));
 		server.InitializeServer();
 		server.Run();
 	}
 	catch(const std::exception& e)
 	{
-		//server.fdClose();
 		std::cerr << e.what() << '\n';
 	}
 }

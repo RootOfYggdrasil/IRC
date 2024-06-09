@@ -8,7 +8,6 @@
 # include <fcntl.h> 
 # include <unistd.h> 
 # include <csignal> 
-# include <vector>
 # include <sys/socket.h> 
 # include <sys/types.h>
 # include <netinet/in.h> 
@@ -17,6 +16,7 @@
 # include <string>
 # include <stdexcept>
 # include <string.h>
+# include <signal.h>
 # include <iomanip>
 # include <netdb.h>
 # include <stdio.h>
@@ -47,7 +47,7 @@ class Server {
 		bool		_isRunning;
 		bool		_isInitialized;
 		bool		_okPw;
-		static bool signal;
+		//static bool _signal;
 		//std::string	_ip;
 		struct sockaddr_in _addr;
 		struct epoll_event _ev;
@@ -83,7 +83,7 @@ class Server {
 		void handleCommand(Client &client, std::vector<std::string> pVector);
 		void registerNotLogged(Client &client, std::vector<std::string> pVector);
 
-		static void checkSignal(int signal);
+		
 		void fdClose(void);
 
 		void addClient(Client *client);

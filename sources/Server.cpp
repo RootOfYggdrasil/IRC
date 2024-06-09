@@ -51,14 +51,7 @@ void Server::setSocket(int _serverSocketFd){ this->_serverSocket = _serverSocket
 //void Server::setPw(const std::string &pw){ this->_password = pw; }
 
 
-bool Server::signal = false;
-void Server::checkSignal(int signal)
-{
-	(void)signal;
-	std::cout << std::endl << "Signal received" << std::endl;
-	Server::signal = true;
-	exit(1);
-}
+
 
 Client *Server::getClient(const std::string &nickname) const
 {
@@ -246,6 +239,9 @@ void Server::handleMessage(Client &client, const char *msg)
 void	Server::InitializeServer(void)
 {
 	int e = 1;
+
+	signal(SIGINT, checkSignal);
+	signal(SIGQUIT, checkSignal);
 
 	this->_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(this->_serverSocket == -1)
