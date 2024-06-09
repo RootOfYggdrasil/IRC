@@ -48,6 +48,7 @@ run: re
 		./$(NAME) 6667	password
 
 valgrind: re
+		clear
 		valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./$(NAME) 6667	password
 
 .PHONY: clean fclean re

@@ -280,7 +280,6 @@ void	Command::quit(Server &server, Client &client, std::vector<std::string> &vAr
 		if (client.getIsLogged())
 		{
 			client.setIsLogged(false);
-			client.setNikcname("");
 		}
 		//if (client.getFd() != 1000 && (epoll_ctl(server._epollFD, EPOLL_CTL_DEL, client.getFd(), NULL) ==  -1))
 		//{ chiudere fd}

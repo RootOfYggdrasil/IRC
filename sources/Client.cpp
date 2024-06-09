@@ -58,3 +58,25 @@ void Client::deleteClFromCh(Server &server)
 	}
 }*/
 
+
+std::ostream &operator<<(std::ostream &o, const Client &cl)
+{
+	o << "Client:" << std::endl;
+	o << "  fd: " << cl.getFd() << std::endl;
+	o << "  nickname: " << cl.getNickname() << std::endl;
+	o << "  user: " << cl.getUsername() << std::endl;
+	o << "  isLogged: " << cl.getIsLogged() << std::endl;
+	o << "  hasPw: " << cl.getPw() << std::endl;
+	return o;
+}
+
+std::ostream &operator<<(std::ostream &o, const Client *cl)
+{
+	o << "Client:" << std::endl;
+	o << "  fd: " << cl->getFd() << std::endl;
+	o << "  nickname: " << cl->getNickname() << std::endl;
+	o << "  user: " << cl->getUsername() << std::endl;
+	o << "  isLogged: " << cl->getIsLogged() << std::endl;
+	o << "  hasPw: " << cl->getPw() << std::endl;
+	return o;
+}

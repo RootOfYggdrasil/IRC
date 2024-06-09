@@ -4,10 +4,12 @@ main.cpp sources/Channel.cpp sources/Client.cpp sources/Command.cpp sources/Serv
 [0;96mCompiling ircserv [0;39m
 '[0;92mall[0;39m' for mandatory ircserv executed successfully!
 '[0;92mre[0;39m' for ircserv executed successfully!
-Server Initialized on port 6667
+[H[2J[3JServer Initialized on port 6667
 Password: password
 Socket: 3
-Hostname: c1r5p1.42firenze.it
+Hostname: c1r5p2.42firenze.it
+EpollFD: 4
+FdCounter: 5
 Server is UP
 Event Detected! Nr: 1
 New Client Connected: 5
@@ -37,6 +39,7 @@ Client sdel-gra user
 
 Event Detected! Nr: 1
 Message from client <5>: USER sdel-gra 8 * :Simone Del Grazia
+QUIT :Konversation terminated!
 
 Line: USER sdel-gra 8 * :Simone Del Grazia
 Client sdel-gra user sdel-gra
@@ -45,18 +48,15 @@ sdel-gra now has registered.
 
 
 
-Event Detected! Nr: 1
-Message from client <5>: QUIT :Konversation terminated!
-
-Line: QUIT :Konversation terminated!
-
-
-Event Detected! Nr: 1
+Event Detected! Nr: 2
 Message from client <5>: 
-Client <5> Disconnected
+DisconnectingClient:
+  fd: 5
+  nickname: sdel-gra
+  user: sdel-gra
+  isLogged: 1
+  hasPw: 1
 
-
-Event Detected! Nr: 1
 New Client Connected: 5
 
 
@@ -72,26 +72,36 @@ Event Detected! Nr: 1
 Message from client <5>: PASS :password
 
 Line: PASS :password
-Error: 451  :You have not registered
-
+Client  user 
 
 
 Event Detected! Nr: 1
 Message from client <5>: NICK sdel-gra
+USER sdel-gra 8 * :Simone Del Grazia
+QUIT :Konversation terminated!
 
 Line: NICK sdel-gra
-Client  user sdel-gra
+Client sdel-gra user 
 
 
 Event Detected! Nr: 1
-Message from client <5>: USER sdel-gra 8 * :Simone Del Grazia
+Message from client <5>: 
+DisconnectingClient:
+  fd: 5
+  nickname: sdel-gra
+  user: 
+  isLogged: 0
+  hasPw: 1
 
-Line: USER sdel-gra 8 * :Simone Del Grazia
-Client  user sdel-gra
+
+
+Event Detected! Nr: 1
+New Client Connected: 5
 
 
 Signal received
 
 [FSIGINT signal recieved, server closed.
 Server is deleting things
+Deleting client: 
 Deleting channel: #welcome

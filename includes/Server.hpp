@@ -77,6 +77,8 @@ class Server {
 		Channel *getChannel(const std::string &channelName) const;	
 
 		void deleteChannel(const std::string &nameChannel);
+		void deleteAllChannels();
+		void deleteAllClients();
 
 		void handleMessage(Client &client, const char *msg);
 		std::vector<std::string> splitCmd(const std::string &line);
@@ -87,7 +89,8 @@ class Server {
 		void addChannel(Channel *channel);
 		void sendToAll(const std::string &msg);
 		bool existsClient(const std::string &nickname) const;
-		
+		void eraseClientFromAllChannels(Client &client);		
+
 }; 
 
 
