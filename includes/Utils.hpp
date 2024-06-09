@@ -6,9 +6,10 @@
 # include <algorithm>
 # include <signal.h>
 # include <iostream>
+# include "Server.hpp"
 
 std::string	toUpperString(std::string str);
 std::string	toLowerString(std::string str);
-void checkSignal(int signal);
+void checkSignal(int);
 
 #endif

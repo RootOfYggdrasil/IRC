@@ -16,7 +16,7 @@ std::string	toLowerString(std::string str)
 void checkSignal(int signal)
 {
 	std::cout << "Signal received" << std::endl;
-	if (signal == SIGINT)
-		std::cout << std::endl << "\033[F" << "SIGINT signale recieved, servere closed."<< std::endl;
-	exit(1);
+	ServerisRunning = false;
+	if (signal == SIGINT || signal == SIGQUIT)
+		std::cout << std::endl << "\033[F" << "SIGINT signal recieved, server closed."<< std::endl;
 }

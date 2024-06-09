@@ -21,8 +21,12 @@ in_port_t	portChecker(std::string string)
 	return (port);
 }
 
+bool ServerisRunning;
+
 int main(int argc, char **argv)
 {
+	ServerisRunning = true;
+
 	if (argc != 3)
 	{
 		std::cerr << "Usage: ./irc <port> <password>" << std::endl;

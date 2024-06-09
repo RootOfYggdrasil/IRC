@@ -1,0 +1,97 @@
+'[0;92mclean[0;39m' for ircserv executed successfully!
+'[0;92mfclean[0;39m' for ircserv executed successfully!
+main.cpp sources/Channel.cpp sources/Client.cpp sources/Command.cpp sources/Server.cpp sources/Utils.cpp
+[0;96mCompiling ircserv [0;39m
+'[0;92mall[0;39m' for mandatory ircserv executed successfully!
+'[0;92mre[0;39m' for ircserv executed successfully!
+Server Initialized on port 6667
+Password: password
+Socket: 3
+Hostname: c1r5p1.42firenze.it
+Server is UP
+Event Detected! Nr: 1
+New Client Connected: 5
+
+
+Event Detected! Nr: 1
+Message from client <5>: CAP LS 302
+
+Line: CAP LS 302
+Error: 451  :You have not registered
+
+
+
+Event Detected! Nr: 1
+Message from client <5>: PASS :password
+
+Line: PASS :password
+Client  user 
+
+
+Event Detected! Nr: 1
+Message from client <5>: NICK sdel-gra
+
+Line: NICK sdel-gra
+Client sdel-gra user 
+
+
+Event Detected! Nr: 1
+Message from client <5>: USER sdel-gra 8 * :Simone Del Grazia
+
+Line: USER sdel-gra 8 * :Simone Del Grazia
+Client sdel-gra user sdel-gra
+sdel-gra now has registered.
+:ircserv 353 sdel-gra = #welcome :sdel-gra 
+
+
+
+Event Detected! Nr: 1
+Message from client <5>: QUIT :Konversation terminated!
+
+Line: QUIT :Konversation terminated!
+
+
+Event Detected! Nr: 1
+Message from client <5>: 
+Client <5> Disconnected
+
+
+Event Detected! Nr: 1
+New Client Connected: 5
+
+
+Event Detected! Nr: 1
+Message from client <5>: CAP LS 302
+
+Line: CAP LS 302
+Error: 451  :You have not registered
+
+
+
+Event Detected! Nr: 1
+Message from client <5>: PASS :password
+
+Line: PASS :password
+Error: 451  :You have not registered
+
+
+
+Event Detected! Nr: 1
+Message from client <5>: NICK sdel-gra
+
+Line: NICK sdel-gra
+Client  user sdel-gra
+
+
+Event Detected! Nr: 1
+Message from client <5>: USER sdel-gra 8 * :Simone Del Grazia
+
+Line: USER sdel-gra 8 * :Simone Del Grazia
+Client  user sdel-gra
+
+
+Signal received
+
+[FSIGINT signal recieved, server closed.
+Server is deleting things
+Deleting channel: #welcome

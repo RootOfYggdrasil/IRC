@@ -80,11 +80,11 @@ void	Command::bot(Server &s, Client &client, std::vector<std::string> &vArgument
 	else
 	{
 		if(vArguments[0].compare("truth") == 0)
-			replyMsg = client.getNickname() + " Tell me your worst secret\r\n";
+			replyMsg = ":" + client.getNickname() + " Tell me your worst secret\r\n";
 		else if(vArguments[0].compare("dare") == 0) 
-			replyMsg = client.getNickname() + " You have to buy me a coffe\r\n";
+			replyMsg = ":" + client.getNickname() + " You have to buy me a coffe\r\n";
 		else
-			replyMsg = client.getNickname() + " Error: Usage: 'bot' + <option('truth' or 'dare')>;\r\n";
+			replyMsg = ":" + client.getNickname() + " Error: Usage: 'bot' + <option('truth' or 'dare')>;\r\n";
 	}
 	send(client.getFd(), replyMsg.c_str(), replyMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
@@ -266,7 +266,6 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 void	Command::quit(Server &server, Client &client, std::vector<std::string> &vArguments)
 {
 	(void)server;
-	// come si disconnette?
 	std::string clientMsg = "";
 	if (vArguments.size() < 1)
 	{
@@ -275,6 +274,16 @@ void	Command::quit(Server &server, Client &client, std::vector<std::string> &vAr
 	}
 	else
 	{
+		clientMsg = ":" + client.getNickname() + " QUIT :Quitted \r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		
+		if (client.getIsLogged())
+		{
+			client.setIsLogged(false);
+			client.setNikcname("");
+		}
+		//if (client.getFd() != 1000 && (epoll_ctl(server._epollFD, EPOLL_CTL_DEL, client.getFd(), NULL) ==  -1))
+		//{ chiudere fd}
 	}
 
 	//va segnalato che un client si disconnette???
