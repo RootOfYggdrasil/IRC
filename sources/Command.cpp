@@ -35,7 +35,7 @@ void	addClientToChannel(Server &server, Client &client, std::string channelName,
 		//canale pieno
 	if (channel->getPassword() == password)
 	{
-		if (!channel->getInviteOnly())
+		if (!channel->getInviteOnly() || (channel->getClientCount() == channel->getClientsMax() && channel->getClientsMax() > 0))
 		{
 			channel->addClient(&client);
 			client.addChannel(channel);
