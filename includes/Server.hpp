@@ -34,6 +34,8 @@
 # include "Channel.hpp"
 # include "Utils.hpp"
 
+extern bool ServerisRunning;
+
 typedef void (*functionCmd)(Server &server, Client &client, std::vector<std::string> &vArguments);
 
 class Server {
@@ -44,15 +46,13 @@ class Server {
 		int 		_serverSocket;
 		int 		_epollFD;
 		unsigned long int _fdCounter;
-		bool		_isRunning;
 		bool		_isInitialized;
 		bool		_okPw;
-		//static bool _signal;
-		//std::string	_ip;
+		static bool _signal;
 		struct sockaddr_in _addr;
 		struct epoll_event _ev;
 		struct epoll_event _maxEvents[1024];
-		struct epoll_event _runningEvent;
+		//struct epoll_event _runningEvent;
 
 		std::list<Client*> _newCltoRegister;
 		std::map <std::string, Client*>	_clients;
@@ -82,9 +82,6 @@ class Server {
 		std::vector<std::string> splitCmd(const std::string &line);
 		void handleCommand(Client &client, std::vector<std::string> pVector);
 		void registerNotLogged(Client &client, std::vector<std::string> pVector);
-
-		
-		void fdClose(void);
 
 		void addClient(Client *client);
 		void addChannel(Channel *channel);

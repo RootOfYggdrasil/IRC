@@ -20,24 +20,6 @@ Server::Server(in_port_t port, std::string password) : _port(port), _password(pa
 	addChannel(welcome);
 
 }
-/*
-Server::Server(Server const &src) 
-{
-	*this = src;
-}
-
-Server &Server::operator=(Server const &op)
-{
-	if (this != &op)
-	{
-		//this->_port = op._addr;
-		this->_serverSocket = op._serverSocket;
-		this->_epollFD = op._epollFD;
-		//this->_ip = op._ip;
-		this->_password = op._password;
-	}
-	return *this;
-}*/
 
 Server::~Server(void) { }
 
@@ -49,7 +31,6 @@ const std::string Server::getPw() const { return this->_password; }
 void Server::setPort(const in_port_t &port){ this->_port = port; }
 void Server::setSocket(int _serverSocketFd){ this->_serverSocket = _serverSocketFd; }
 //void Server::setPw(const std::string &pw){ this->_password = pw; }
-
 
 
 
@@ -163,7 +144,7 @@ void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 {
 	std::string cmd;
-
+	
 	if (!pVector.size())
 		return;
 	cmd = pVector[0];
@@ -256,8 +237,8 @@ void	Server::InitializeServer(void)
 	this->_addr.sin_port = htons(this->_port);
 	this->_addr.sin_addr.s_addr = *((in_addr_t *)gethostbyname(hostname)->h_addr_list[0]);
 	//the bind function binds the socket to the address and port number specified in addr(custom data structure).
-	bind(this->_serverSocket, (struct sockaddr *)&this->_addr, sizeof(this->_addr));
-		//throw std::runtime_error("ERROR: bind failed");
+	if (bind(this->_serverSocket, (struct sockaddr *)&this->_addr, sizeof(this->_addr)) == -1)
+		throw std::runtime_error("ERROR: bind failed");
 	if(listen(this->_serverSocket, 100) == -1)
 		throw std::runtime_error("ERROR: listen failed");
 	/*strarting epoll*/
@@ -286,9 +267,9 @@ void	Server::Run()
 
 	if (!this->_isInitialized)
 		throw std::runtime_error("ERROR: server not initialized");
-	this->_isRunning = true;
+	ServerisRunning = true;
 	std::cout << "Server is UP" << std::endl;
-	while (this->_isRunning)
+	while (ServerisRunning)
 	{
 		int	eventNumber = epoll_wait(this->_epollFD, this->_maxEvents, 100, -1); //check non blocking events(0)
 		if(eventNumber > 0)
@@ -331,30 +312,24 @@ void	Server::Run()
 				else
 				{
 					char buff[512];
-					Client *newCL = NULL;
+					Client *newCL;
 					int clientFdSocket = _maxEvents[i].data.fd;
 					newCL = getClientComparingfFd(clientFdSocket);
 					memset(buff, 0, sizeof(buff));
-					int bytes = recv(clientFdSocket, buff, sizeof(buff), 0);
+					int incomingBytes = recv(clientFdSocket, buff, sizeof(buff), 0);
 					std::cout << "Message from client <" << clientFdSocket << ">: " << buff << std::endl;
-					if(bytes == -1)
-						throw std::runtime_error("ERROR: recv failed");
-					else if(bytes == 0)
+					if(incomingBytes <= 0)
 					{
 						std::cout << "Client <"	<< clientFdSocket << "> Disconnected" << std::endl;
-						close(clientFdSocket);
 						epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, clientFdSocket, NULL);
 						fdcounter--;
-						//remove client from _clients ma
-						if (newCL != NULL)
-						{
-							//verificare se fare funzione apposita che elimini anche dal channel
-							_clients.erase(newCL->getNickname());
-							delete newCL;
-						}	
+						close(clientFdSocket);
+						//remove client from _clients map
+						delete newCL;	
 					}
-					else
+					else if (newCL)
 					{
+						std::cout << "Client <" << newCL << " " << newCL->getFd()  << " " << newCL->getNickname() << std::endl;
 						handleMessage(*newCL, buff);
 					}
 				}
@@ -362,11 +337,11 @@ void	Server::Run()
 			std::cout << std::endl << std::endl;
 		}
 	}
-	_clients.erase("#welcome");
-
-	for(std::list<Client*>::iterator it = this->_newCltoRegister.begin(); it != this->_newCltoRegister.end(); it++)
+	std::cout << "Server is deleting things" << std::endl;
+	for(std::list<Client *>::iterator it = this->_newCltoRegister.begin(); it != this->_newCltoRegister.end(); ++it)
 	{
-		send((*it)->getFd(), ":ircserv QUIT :The server is disconnected!\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+		std::cout << "Deleting client: " << (*it)->getNickname() << std::endl;
+		send((*it)->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, (*it)->getFd(), NULL);
 		fdcounter--;
 		if((*it)->getFd() >= 0)
@@ -375,7 +350,8 @@ void	Server::Run()
 	}
 	for(std::map<std::string, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
-		send(it->second->getFd(), ":ircserv QUIT :The server is disconnected!\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+		std::cout << "Deleting client: " << it->second->getNickname() << std::endl;	
+		send(it->second->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, it->second->getFd(), NULL);
 		fdcounter--;
 		if(it->second->getFd() >= 0)
@@ -383,14 +359,17 @@ void	Server::Run()
 		delete it->second;
 	}
 	for(std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+	{
+		std::cout << "Deleting channel: " << it->second->getName() << std::endl;
 		delete it->second;
+	}
 	close(this->_epollFD);
 	close(this->_serverSocket);
 }
 
 void	Server::addChannel(Channel *channel)
 {
-	if (channel && !getChannel(channel->getName()))
+	if (channel  && !getChannel(channel->getName()))
 		_channels[channel->getName()] = channel;
 }
 
