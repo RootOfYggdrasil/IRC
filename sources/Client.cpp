@@ -1,7 +1,7 @@
 
 #include "../includes/Client.hpp"
 
-Client::Client(void) : _clientFd(-1), _nickname("redelpipo"), _user("el-pipon"), _isLogged(true), _hasPw(true) {}
+Client::Client(void) : _clientFd(-1), _nickname("BOT_DELPIPO"), _user("BOT-el-pipon"), _isLogged(true), _hasPw(true) {}
 
 Client::Client(int fd) : _clientFd(fd), _nickname(""), _user(""), _isLogged(false), _hasPw(false){}
 
@@ -58,3 +58,25 @@ void Client::deleteClFromCh(Server &server)
 	}
 }*/
 
+
+std::ostream &operator<<(std::ostream &o, const Client &cl)
+{
+	o << "Client:" << std::endl;
+	o << "  fd: " << cl.getFd() << std::endl;
+	o << "  nickname: " << cl.getNickname() << std::endl;
+	o << "  user: " << cl.getUsername() << std::endl;
+	o << "  isLogged: " << cl.getIsLogged() << std::endl;
+	o << "  hasPw: " << cl.getPw() << std::endl;
+	return o;
+}
+
+std::ostream &operator<<(std::ostream &o, const Client *cl)
+{
+	o << "Client:" << std::endl;
+	o << "  fd: " << cl->getFd() << std::endl;
+	o << "  nickname: " << cl->getNickname() << std::endl;
+	o << "  user: " << cl->getUsername() << std::endl;
+	o << "  isLogged: " << cl->getIsLogged() << std::endl;
+	o << "  hasPw: " << cl->getPw() << std::endl;
+	return o;
+}

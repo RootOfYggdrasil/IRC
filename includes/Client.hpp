@@ -48,4 +48,7 @@ class Client {
 		void addChannel(Channel *channel);
 }; 
 
+std::ostream &operator<<(std::ostream &o, const Client &cl);
+std::ostream &operator<<(std::ostream &o, const Client *cl);
+
 #endif

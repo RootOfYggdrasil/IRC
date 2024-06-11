@@ -257,3 +257,28 @@ void	Channel::removeInvitedClient(Client *client)
 	if (it != this->_invitedClients.end())
 		this->_invitedClients.erase(it);
 }
+
+
+std::ostream &operator<<(std::ostream &o, Channel &ch)
+{
+	o << "Channel:" << std::endl;
+	o << "  name: " << ch.getName() << std::endl;
+	o << "  password: " << ch.getPassword() << std::endl;
+	o << "  topic: " << ch.getTopic() << std::endl;
+	o << "  inviteOnly: " << ch.getInviteOnly() << std::endl;
+	o << "  topicRestrict: " << ch.getTopicRestrict() << std::endl;
+	o << "  clientsMax: " << ch.getClientsMax() << std::endl;
+	return o;
+}
+
+std::ostream &operator<<(std::ostream &o, Channel *ch)
+{
+	o << "Channel:" << std::endl;
+	o << "  name: " << ch->getName() << std::endl;
+	o << "  password: " << ch->getPassword() << std::endl;
+	o << "  topic: " << ch->getTopic() << std::endl;
+	o << "  inviteOnly: " << ch->getInviteOnly() << std::endl;
+	o << "  topicRestrict: " << ch->getTopicRestrict() << std::endl;
+	o << "  clientsMax: " << ch->getClientsMax() << std::endl;
+	return o;
+}

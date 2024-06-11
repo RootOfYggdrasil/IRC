@@ -18,6 +18,10 @@ Server::Server(in_port_t port, std::string password) : _port(port), _password(pa
 	_commands["PASS"] = &Command::password;
 	Channel *welcome = new Channel("#welcome");
 	addChannel(welcome);
+	Client *bot = new Client();
+	this->_clients[bot->getNickname()] = bot;
+	welcome->addClient(bot);
+	welcome->addOperatorClient(bot);
 
 }
 
@@ -222,7 +226,7 @@ void Server::handleMessage(Client &client, const char *msg)
 void	Server::InitializeServer(void)
 {
 	int e = 1;
-
+	
 	signal(SIGINT, checkSignal);
 	signal(SIGQUIT, checkSignal);
 
@@ -259,12 +263,12 @@ void	Server::InitializeServer(void)
 	std::cout << "Password: " << this->_password << std::endl;
 	std::cout << "Socket: " << this->_serverSocket << std::endl;
 	std::cout << "Hostname: " << hostname << std::endl;
+	std::cout << "EpollFD: " << this->_epollFD << std::endl;
+	std::cout << "FdCounter: " << this->_fdCounter << std::endl;
 }
 
 void	Server::Run()
 {
-	unsigned long int *fdcounter;
-	fdcounter = &_fdCounter;
 	int newFdSocket = 0;
 
 	if (!this->_isInitialized)
@@ -284,8 +288,9 @@ void	Server::Run()
 				{
 					newFdSocket = accept(this->_serverSocket, NULL, NULL);
 					
-					if(*fdcounter >= 1024 - 1)
+					if(this->_fdCounter >= 1024 - 1)
 					{
+						std::cout << "fdcounter: " << this->_fdCounter << std::endl;
 						send(newFdSocket, ":ircserv QUIT :The server is full!\r\n", 37, MSG_DONTWAIT | MSG_NOSIGNAL);
 						send(newFdSocket, "", 0, MSG_DONTWAIT | MSG_NOSIGNAL);
 						close(newFdSocket);
@@ -299,7 +304,7 @@ void	Server::Run()
 					if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, newFdSocket, &this->_ev) == -1)
 						throw std::runtime_error("ERROR: epoll ctl failed");
 					std::cout << "New Client Connected: " << newFdSocket << std::endl;
-					fdcounter++;
+					this->_fdCounter++;
 					
 					//fd of non registered client insert in the list
 					Client *newClient = new Client(newFdSocket);
@@ -322,16 +327,21 @@ void	Server::Run()
 					std::cout << "Message from client <" << clientFdSocket << ">: " << buff << std::endl;
 					if(incomingBytes <= 0)
 					{
-						std::cout << "Client <"	<< clientFdSocket << "> Disconnected" << std::endl;
+						std::cout << "Disconnecting" << newCL << std::endl;
 						epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, clientFdSocket, NULL);
-						fdcounter--;
+						this->_fdCounter--;
 						close(clientFdSocket);
-						//remove client from _clients map
-						delete newCL;	
+						if (newCL)
+						{
+							this->eraseClientFromAllChannels(*newCL);
+							this->_newCltoRegister.remove(newCL);
+							this->_clients.erase(newCL->getNickname());
+							delete newCL;
+						}
+						//remove client from _clients map	
 					}
 					else if (newCL)
 					{
-						std::cout << "Client <" << newCL << " " << newCL->getFd()  << " " << newCL->getNickname() << std::endl;
 						handleMessage(*newCL, buff);
 					}
 				}
@@ -345,9 +355,12 @@ void	Server::Run()
 		std::cout << "Deleting client: " << (*it)->getNickname() << std::endl;
 		send((*it)->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, (*it)->getFd(), NULL);
-		fdcounter--;
+	
 		if((*it)->getFd() >= 0)
+		{
+			this->_fdCounter--;
 			close((*it)->getFd());
+		}
 		delete *it;
 	}
 	for(std::map<std::string, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
@@ -355,9 +368,11 @@ void	Server::Run()
 		std::cout << "Deleting client: " << it->second->getNickname() << std::endl;	
 		send(it->second->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, it->second->getFd(), NULL);
-		fdcounter--;
 		if(it->second->getFd() >= 0)
+		{
 			close(it->second->getFd());
+			this->_fdCounter--;
+		}
 		delete it->second;
 	}
 	for(std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
@@ -393,4 +408,38 @@ void Server::sendToAll(const std::string &msg)
 bool Server::existsClient(const std::string &nickname) const
 {
 	return (this->_clients.find(nickname) != this->_clients.end());
+}
+
+void Server::deleteAllChannels()
+{
+	for(std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+	{
+		std::cout << "Deleting channel: " << it->second << std::endl;
+		if (it->second)
+			delete it->second;
+	}
+	_channels.clear();
+}
+
+void Server::deleteAllClients()
+{
+	for(std::map<std::string, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+	{
+		if (it->second)
+		{
+			std::cout << "Deleting client: " << it->second << std::endl;
+			send(it->second->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+			delete it->second;
+		}
+	}
+	_clients.clear();
+}
+
+void Server::eraseClientFromAllChannels(Client &client)
+{
+	for(std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
+	{
+		if (it->second)
+			it->second->deleteClient(client.getNickname());
+	}
 }

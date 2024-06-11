@@ -73,4 +73,7 @@ class Channel {
 		Client	getClient(std::string nickname);
 }; 
 
+std::ostream &operator<<(std::ostream &o, Channel &ch);
+std::ostream &operator<<(std::ostream &o, Channel *ch);
+
 #endif
