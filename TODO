@@ -50,3 +50,10 @@ SUBJECT Richieste:
     - +-k //da controllare nei join
     - +-l //da controllare nei join
   - Partial data
+
+
+  ///DA CONTROLLARE 
+ - segfault e esplode invitando utente che non esiste
+ - se mi auto elimino o provo a eliminare un utente da un canale da errore(sia da oeratore che da utente):  btani #nomecanale You're not on that channel
+ - netcat con comando interrotto non funziona 
+ - segfault e esplode se mandi spazi vuoti al bot
