@@ -1,6 +1,31 @@
 
 #include "../includes/Command.hpp"
 
+std::string	phrasePacciani[6] = {
+	"Who was Pacciani",
+	"Pacciani was a serial killer in Italy, he was a farmer and he killed 14 people in the 80s. He was called the Monster of Florence.",
+	"Posso parlà da i banco? Come, io non ho diritto a parlare? Voglio la libertà per andare alla banca e alla posta",
+	"Risorgeremo. Prima o Dopo",
+	"Signor Vanni, che lavoro fa lei?» «Io sono stato a fà delle merende co i Pacciani no?",
+	"Se ni mondo esistesse un po di bene e ognun si considerasse suo fratello, ci sarebbe meno pensieri e meno pene e il mondo ne sarebbe assai più bello"
+};
+
+std::string phrasePiccol[] = {
+	"Solo per oggi ma a partire da domani",
+	"Smettila di morire di fame a casa vieni al Piccol",
+	"Calendario illustrato di padre Maronno, 4 euro",
+	"Solo dopo la chiusura, guanti da piede 3 euro",
+	"Tizio raffredda brodo, 66-67 euro",
+	"Succo d'anatras, cinquenta euro",
+	"Crociera a Cortina 2 milioni di euro"
+};
+
+std::string phraseRandom[]= {
+	"Signora Nordberg, credo che riusciremo a salvare il braccio di suo marito. Dove vuole che glielo spediamo?",
+	"-Ho passato una giornata meravigliosa. Sembra impossibile che ci siamo conosciuti solo ieri.\nEL_PIPO -Lo pensi veramente, Jane? Non è che lo dici solo perché ci siano scambiati i fluidi corporei?",
+	"I suoi capelli avevano lo steso colore dell'oro nei dipinti antichi, aveva un vasto assortimento di curve, un set completo di curve e due gambe che avresti ciucciato e leccato un giorno intero. Mi lanciò un'occhiata che m'indurì tutto. Persino i miei pantaloni sembravano inamidati. L'affare si stava veramente ingrossando."
+};
+
 Command::Command(void) {}
 Command::~Command(void) {}
 
@@ -75,16 +100,20 @@ void	Command::bot(Server &s, Client &client, std::vector<std::string> &vArgument
  	if (vArguments.size() < 1)
 	{
  		//replyMsg = "461 " + client.getNickname() + " BOT :Not enough parameters\r\n";
-		replyMsg = client.getNickname() + " Error: Usage: 'bot' + <option('truth' or 'dare')>;\r\n";
+		replyMsg = client.getNickname() + " EL_PIPO" + " Error: Usage: 'bot' + <option('truth'-'dare'-'Pacciani'-'Piccol')>;\r\n";
 	}
 	else
 	{
 		if(vArguments[0].compare("truth") == 0)
-			replyMsg = ":" + client.getNickname() + " Tell me your worst secret\r\n";
+			replyMsg = ":" + client.getNickname() + " EL_PIPO " + "Tell me your worst secret\r\n";
 		else if(vArguments[0].compare("dare") == 0) 
-			replyMsg = ":" + client.getNickname() + " You have to buy me a coffe\r\n";
-		else
-			replyMsg = ":" + client.getNickname() + " Error: Usage: 'bot' + <option('truth' or 'dare')>;\r\n";
+			replyMsg = ":" + client.getNickname() + " EL_PIPO " +  "You have to buy me a coffe\r\n";
+		else if (vArguments[0].compare("Pacciani") == 0)
+			replyMsg = ":" + client.getNickname() + " EL_PIPO " +  phrasePacciani[rand() % 6] + "\r\n";
+		else if (vArguments[0].compare("Piccol") == 0)
+			replyMsg = ":" + client.getNickname() + " EL_PIPO " +  phrasePiccol[rand() % 7] + "\r\n";
+		else if (vArguments[0].compare("random") == 0)
+			replyMsg = ":" + client.getNickname() + " EL_PIPO " +  phraseRandom[rand() % 3] + "\r\n";
 	}
 	send(client.getFd(), replyMsg.c_str(), replyMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
@@ -344,13 +373,13 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 				break;
 			case 'o':
 				clientToHandle = channel->getClient(extra);
-				if (channel->isOperator(clientToHandle))
+				if (channel->isClientOnChannel(extra) && !channel->isOperator(clientToHandle))
 				{
 					clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " +o " + extra + "\r\n";
 					channel->addOperatorClient(extra);
 				}
 				else
-					clientMsg = "441 " + client.getNickname() + " " + extra + " :user is not in this channel\r\n";
+					clientMsg = "Error " + extra + " :user is not in this channel or is already operator\r\n";
 				break;
 			case 'l':
 				clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " +l " + extra + "\r\n";
@@ -381,13 +410,13 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 				break;
 			case 'o':
 				clientToHandle = channel->getClient(extra);
-				if (channel->isOperator(clientToHandle))
+				if (channel->isClientOnChannel(extra) && channel->isOperator(clientToHandle) && client.getNickname() != extra)
 				{
 					clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " -o " + extra + "\r\n";
 					channel->deleteOperatorClient(extra);
 				}
 				else
-					clientMsg = "441 " + client.getNickname() + " " + extra + " :user is not in this channel\r\n";
+					clientMsg = "441 " + client.getNickname() + " " + extra + " :user is not in this channel or is not operator or you can't use it on yourself\r\n";
 				break;
 			case 'l':
 				clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " -l\r\n";
@@ -420,20 +449,23 @@ void	Command::mode(Server &server, Client &client, std::vector<std::string> &vAr
 	else
 	{
 		if (vArguments[0][0] != '#')
-			return;
-		channel = client.getChannel(vArguments[0]);
-		if (!channel)
-			clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
-		else if (vArguments[1].length() > 2 && vArguments[1].length() == 2 && vArguments[1][0] != '+' && vArguments[1][0] != '-')
-			clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
-		else if (vArguments[1] == "+b")
-			return;
-		else if (!channel->isOperator(client))
-			clientMsg = "482 " + client.getNickname() + " :You're not channel operator\r\n";
-		else if (vArguments.size() > 2)
-			handleModeOption(client, vArguments[0], vArguments[1], vArguments[2]);
+			clientMsg = "ERROR " + client.getNickname() + " How to use MODE: /MODE #channel_name +/-option extra param\r\n";
 		else
-			handleModeOption(client, vArguments[0], vArguments[1], "");
+		{
+			channel = client.getChannel(vArguments[0]);
+			if (!channel)
+				clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
+			else if (vArguments[1].length() > 2 && vArguments[1].length() == 2 && vArguments[1][0] != '+' && vArguments[1][0] != '-')
+				clientMsg = "501" + client.getNickname() + " :Unknown MODE flag\r\n";
+			else if (vArguments[1] == "+b")
+				return;
+			else if (!channel->isOperator(client))
+				clientMsg = "482 " + client.getNickname() + " :You're not channel operator\r\n";
+			else if (vArguments.size() > 2)
+				handleModeOption(client, vArguments[0], vArguments[1], vArguments[2]);
+			else
+				handleModeOption(client, vArguments[0], vArguments[1], "");
+		}
 	}
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }

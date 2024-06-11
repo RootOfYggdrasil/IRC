@@ -18,6 +18,10 @@ Server::Server(in_port_t port, std::string password) : _port(port), _password(pa
 	_commands["PASS"] = &Command::password;
 	Channel *welcome = new Channel("#welcome");
 	addChannel(welcome);
+	Client *bot = new Client();
+	this->_clients[bot->getNickname()] = bot;
+	welcome->addClient(bot);
+	welcome->addOperatorClient(bot);
 
 }
 
