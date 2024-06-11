@@ -70,6 +70,8 @@ Se non trova nessun client con l'fd specificato, restituisce NULL.*/
 Client* Server::getClientComparingfFd(int file) const {
 
     // Search in the _clients map
+
+	std::cout << file << std::endl;
     std::map<std::string, Client*>::const_iterator itstart = this->_clients.begin();
     
 	while (itstart != this->_clients.end()) {
