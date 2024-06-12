@@ -181,10 +181,9 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 	std::string clientMsg = "";
 	Channel *channel = server.getChannel(channelName);
 	if (channel == NULL)
-	{
 		clientMsg = "403 " + client.getNickname() + " " + channelName + " :No such channel\r\n";
-		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-	}
+	else if (!channel->isClientOnChannel(client.getNickname()))
+		clientMsg = "442 " + client.getNickname() + " " + channelName + " :You're not on that channel\r\n";	
 	else
 	{
 		std::vector<Client *> clientToMsg = channel->getLoggedClients(client);
@@ -193,7 +192,10 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 			clientMsg = ":" + client.getNickname() + "! PRIVMSG " + channelName + " :" + msg + "\r\n";
 			send(clientToMsg[i]->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		}
+		return;
 	}
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+
 }
 
 void	sendMsgToClient(Server &server, Client &client, std::string target, std::string msg)
