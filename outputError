@@ -7,7 +7,7 @@ main.cpp sources/Channel.cpp sources/Client.cpp sources/Command.cpp sources/Serv
 [H[2J[3JServer Initialized on port 6667
 Password: password
 Socket: 3
-Hostname: c1r5p2.42firenze.it
+Hostname: c1r6p2.42firenze.it
 EpollFD: 4
 FdCounter: 5
 Server is UP
@@ -16,6 +16,7 @@ New Client Connected: 5
 
 
 Event Detected! Nr: 1
+5
 Message from client <5>: CAP LS 302
 
 Line: CAP LS 302
@@ -24,6 +25,7 @@ Error: 451  :You have not registered
 
 
 Event Detected! Nr: 1
+5
 Message from client <5>: PASS :password
 
 Line: PASS :password
@@ -31,6 +33,7 @@ Client  user
 
 
 Event Detected! Nr: 1
+5
 Message from client <5>: NICK sdel-gra
 
 Line: NICK sdel-gra
@@ -38,70 +41,181 @@ Client sdel-gra user
 
 
 Event Detected! Nr: 1
+5
 Message from client <5>: USER sdel-gra 8 * :Simone Del Grazia
-QUIT :Konversation terminated!
 
 Line: USER sdel-gra 8 * :Simone Del Grazia
 Client sdel-gra user sdel-gra
 sdel-gra now has registered.
-:ircserv 353 sdel-gra = #welcome :sdel-gra 
-
-
-
-Event Detected! Nr: 2
-Message from client <5>: 
-DisconnectingClient:
-  fd: 5
-  nickname: sdel-gra
-  user: sdel-gra
-  isLogged: 1
-  hasPw: 1
-
-New Client Connected: 5
-
-
-Event Detected! Nr: 1
-Message from client <5>: CAP LS 302
-
-Line: CAP LS 302
-Error: 451  :You have not registered
+:ircserv 353 sdel-gra = #welcome :@BOT_DELPIPO BOT_DELPIPO sdel-gra 
 
 
 
 Event Detected! Nr: 1
-Message from client <5>: PASS :password
+5
+Message from client <5>: MODE #welcome
 
-Line: PASS :password
-Client  user 
-
-
-Event Detected! Nr: 1
-Message from client <5>: NICK sdel-gra
-USER sdel-gra 8 * :Simone Del Grazia
-QUIT :Konversation terminated!
-
-Line: NICK sdel-gra
-Client sdel-gra user 
+Line: MODE #welcome
 
 
 Event Detected! Nr: 1
-Message from client <5>: 
-DisconnectingClient:
-  fd: 5
-  nickname: sdel-gra
-  user: 
-  isLogged: 0
-  hasPw: 1
+5
+Message from client <5>: MODE #welcome +b
+
+Line: MODE #welcome +b
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: JOIN #pi
+
+Line: JOIN #pi
+:ircserv 353 sdel-gra = #pi :@sdel-gra sdel-gra 
 
 
 
 Event Detected! Nr: 1
-New Client Connected: 5
+5
+Message from client <5>: MODE #pi
+
+Line: MODE #pi
 
 
-Signal received
+Event Detected! Nr: 1
+5
+Message from client <5>: MODE #pi +b
 
-[FSIGINT signal recieved, server closed.
-Server is deleting things
-Deleting client: 
-Deleting channel: #welcome
+Line: MODE #pi +b
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot 
+
+Line: bot 
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot            
+
+Line: bot            
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot        a                   
+
+Line: bot        a                   
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot truth        a                   
+
+Line: bot truth        a                   
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot truth        a                                           
+
+Line: bot truth        a                                           
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot truth        a                                           as asdf asd fasd fas
+
+Line: bot truth        a                                           as asdf asd fasd fas
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot truth        a                            " "             as asdf asd fasd fas
+
+Line: bot truth        a                            " "             as asdf asd fasd fas
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: WHO #welcome
+
+Line: WHO #welcome
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: bot "truth    "    a                            " "             as asdf asd fasd fas
+
+Line: bot "truth    "    a                            " "             as asdf asd fasd fas
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome : 
+
+Line: PRIVMSG #welcome : 
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: WHO #pi
+
+Line: WHO #pi
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome :                                                                           
+
+Line: PRIVMSG #welcome :                                                                           
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome :                                                                                                           
+
+Line: PRIVMSG #welcome :                                                                                                           
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome :     
+
+Line: PRIVMSG #welcome :     
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome : 
+
+Line: PRIVMSG #welcome : 
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome :  
+
+Line: PRIVMSG #welcome :  
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: PRIVMSG #welcome :                                                                          
+
+Line: PRIVMSG #welcome :                                                                          
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: KICK #welcome sdel-gra :User terminated!
+
+Line: KICK #welcome sdel-gra :User terminated!
+
+
+Event Detected! Nr: 1
+5
+Message from client <5>: INVITE btani #welcome
+
+Line: INVITE btani #welcome

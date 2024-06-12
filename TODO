@@ -53,7 +53,8 @@ SUBJECT Richieste:
 
 
   ///DA CONTROLLARE 
- - segfault e esplode invitando utente che non esiste
+  -invite da aggiustare no segfault
+  -privmsg nel channel da aggiustare
  - se mi auto elimino o provo a eliminare un utente da un canale da errore(sia da oeratore che da utente):  btani #nomecanale You're not on that channel
- - netcat con comando interrotto non funziona 
- - segfault e esplode se mandi spazi vuoti al bot
+ - netcat con comando interrotto non funziona (io non so come risolvere vedremo)
+ - segfault e esplode se mandi spazi vuoti al bot (ho provato non scoppia, mi farai vedere)

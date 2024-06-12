@@ -270,10 +270,10 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 	channel = client.getChannel(vArguments[0]);
 	if (!channel)
 		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
-	else if (channel->isClientOnChannel(client.getNickname()))
+	else if (!channel->isClientOnChannel(client.getNickname()))
 		clientMsg = "441 " + client.getNickname() + " " + vArguments[0] + " :You're not on that channel\r\n";
 	else if (!channel->isOperator(client))
-		clientMsg = "482 " + client.getNickname() + " :You're not channel operator\r\n";
+		clientMsg = "482 " + client.getNickname() + " " + channel->getName() + "\r\n";
 	else
 	{
 		Client *clientToKick = server.getClient(vArguments[1]);
@@ -486,7 +486,7 @@ void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArg
 	channel = client.getChannel(vArguments[1]);
 	clientToInvite = server.getClient(vArguments[0]);
 
-	if (clientToInvite)
+	if (!clientToInvite)
 		clientMsg = "401 " + client.getNickname() + " " + vArguments[0] + " :No such nick\r\n";
 	else if(channel->isClientOnChannel(clientToInvite->getNickname()))
 		clientMsg = "443 " + client.getNickname() + " " + vArguments[0] + " " + channel->getName() + " :is already on channel\r\n";
