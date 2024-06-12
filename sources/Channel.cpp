@@ -198,7 +198,9 @@ void	Channel::deleteClient(std::string nickname)
 {
 	std::map<std::string, Client *>::iterator it = this->_clients.find(nickname);
 	if (it != this->_clients.end())
+	{
 		this->_clients.erase(it);
+	}
 }
 
 bool	Channel::isClientOnChannel(std::string nickname)

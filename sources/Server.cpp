@@ -440,6 +440,9 @@ void Server::eraseClientFromAllChannels(Client &client)
 	for(std::map<std::string, Channel *>::iterator it = this->_channels.begin(); it != this->_channels.end(); it++)
 	{
 		if (it->second)
+		{
 			it->second->deleteClient(client.getNickname());
+			it->second->deleteOperatorClient(client.getNickname());
+		}
 	}
 }
