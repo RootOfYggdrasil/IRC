@@ -268,7 +268,11 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 	std::string clientMsg = "";
 	Channel *channel;
 	if (vArguments.size() < 2)
+	{
 		clientMsg = "461 " + client.getNickname() + " KICK :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		return;
+	}
 	channel = client.getChannel(vArguments[0]);
 	if (!channel)
 		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
