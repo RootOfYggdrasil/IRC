@@ -181,10 +181,9 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 	std::string clientMsg = "";
 	Channel *channel = server.getChannel(channelName);
 	if (channel == NULL)
-	{
 		clientMsg = "403 " + client.getNickname() + " " + channelName + " :No such channel\r\n";
-		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-	}
+	else if (!channel->isClientOnChannel(client.getNickname()))
+		clientMsg = "442 " + client.getNickname() + " " + channelName + " :You're not on that channel\r\n";	
 	else
 	{
 		std::vector<Client *> clientToMsg = channel->getLoggedClients(client);
@@ -193,7 +192,10 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 			clientMsg = ":" + client.getNickname() + "! PRIVMSG " + channelName + " :" + msg + "\r\n";
 			send(clientToMsg[i]->getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		}
+		return;
 	}
+	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+
 }
 
 void	sendMsgToClient(Server &server, Client &client, std::string target, std::string msg)
@@ -266,7 +268,11 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 	std::string clientMsg = "";
 	Channel *channel;
 	if (vArguments.size() < 2)
+	{
 		clientMsg = "461 " + client.getNickname() + " KICK :Not enough parameters\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		return;
+	}
 	channel = client.getChannel(vArguments[0]);
 	if (!channel)
 		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
