@@ -198,7 +198,7 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 
 }
 
-void	sendMsgToClient(Server &server, Client &client, std::string target, std::string msg)
+void	sendMsgToClient(Server &server, Client &client, std::string target, std::string &msg)
 {
 	std::string clientMsg = "";
 	Client *targetClient = server.getClient(target);

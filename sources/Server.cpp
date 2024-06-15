@@ -103,10 +103,12 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 	std::istringstream iss(line);
 	while (std::getline(iss, cmd, ' '))
 	{
-		if (cmd[0] == ':')
+		if (cmd.empty())
+			continue;
+		else if (cmd[0] == ':')
 		{
 			std::string last;
-			std::getline(iss, last, (char)EOF);
+			std::getline(iss, last,(char)EOF);
 			cmd.erase(0, 1);
 			if (last.size() + cmd.size())
 			{
@@ -114,6 +116,8 @@ std::vector<std::string> Server::splitCmd(const std::string &line)
 				{
 					last.size() == 0 ? commands.push_back(cmd) : commands.push_back(cmd + " " + last);
 				}
+				// if (!last.empty())
+				// 	commands.push_back(cmd + " " + last);
 				else
 					commands.push_back(cmd);
 			}
@@ -196,15 +200,15 @@ void Server::handleMessage(Client &client, const char *msg)
 	std::string message = msg;
 	size_t pos = message.find('\n');
 	if (pos != std::string::npos)
-		message = message.substr(0, pos);
-	message = client.getBuffer() + message;
+	 	message = message.substr(0, pos);
+	message = client.getBuffer() + msg;
 	client.setBuffer("");
 	while (pos != std::string::npos)
 	{
 		std::string line;
 		std::istringstream iss(message);
 		std::getline(iss, line);
-		std::cout << "Line: " << line << std::endl;
+		std::cout << "Line: " << line << std::endl;	
 		std::vector<std::string> commands = splitCmd(line);
 		if (commands.size() == 0)
 			break;
@@ -212,7 +216,7 @@ void Server::handleMessage(Client &client, const char *msg)
 		if (client.getIsLogged())
 		{
 			handleCommand(client, commands);
-		}
+		}	
 		else
 		{
 			registerNotLogged(client, commands);

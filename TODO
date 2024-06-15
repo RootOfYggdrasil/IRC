@@ -55,7 +55,7 @@ SUBJECT Richieste:
   ///DA CONTROLLARE 
   -invite da aggiustare no segfault
   -privmsg nel channel da aggiustare
-  -cn nc la seconda volta che si manda il privmsg non funziona, rmane appeso un pezzo del messaggio inviato alla prima chiamata
+ok  -cn nc la seconda volta che si manda il privmsg non funziona, rmane appeso un pezzo del messaggio inviato alla prima chiamata
  - con nc se mi auto elimino o provo a eliminare un utente da un canale esplode 
  - segfault e esplode se mandi spazi vuoti al bot (ho provato non scoppia, mi farai vedere)
- -con nc rivedere controlli sui parametri passati (esempio se faccio join nick #canale esplode perche i paramentri ono invertiti)
+ok -con nc rivedere controlli sui parametri passati (esempio se faccio join nick #canale esplode perche i paramentri ono invertiti)
