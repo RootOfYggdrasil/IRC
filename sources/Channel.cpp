@@ -169,6 +169,11 @@ bool	Channel::isOperator(Client &client)
 	return (this->_operatorClients.find(client.getNickname()) != this->_operatorClients.end());
 }
 
+bool	Channel::isOperator(std::string nickname)
+{
+	return (this->_operatorClients.find(nickname) != this->_operatorClients.end());
+}
+
 void	Channel::addClient(Client *client)
 {
 	if (client && this->_clients.find(client->getNickname()) == this->_clients.end())
@@ -219,6 +224,14 @@ Client	Channel::getClient(std::string nickname)
 	if (it != this->_clients.end())
 		return (*it->second);
 	return (Client());
+}
+
+Client	*Channel::getClientPtr(std::string nickname)
+{
+	std::map<std::string, Client *>::iterator it = this->_clients.find(nickname);
+	if (it != this->_clients.end())
+		return (it->second);
+	return (NULL);
 }
 
 void	Channel::deleteOperatorClient(Client *client)

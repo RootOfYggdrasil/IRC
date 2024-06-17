@@ -356,7 +356,7 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 {
 	std::string clientMsg = "";
 	Channel *channel = client.getChannel(channelName);
-	Client clientToHandle = NULL;
+	Client *clientToHandle = NULL;
 	if (!channel)
 		return;
 	if (mode[0] == '+')
@@ -376,10 +376,12 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 			case 'k':
 				clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " +k " + extra + "\r\n";
 				channel->setPassword(extra);
+				std::cout << "password: " << channel->getPassword() << std::endl;
 				break;
 			case 'o':
-				clientToHandle = channel->getClient(extra);
-				if (channel->isClientOnChannel(extra) && !channel->isOperator(clientToHandle))
+				clientToHandle = channel->getClientPtr(extra);
+				std::cout << "clientToHandle: " << clientToHandle << std::endl;
+				if (channel->isClientOnChannel(extra) && !channel->isOperator(clientToHandle->getNickname()))
 				{
 					clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " +o " + extra + "\r\n";
 					channel->addOperatorClient(extra);
@@ -415,14 +417,19 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 				channel->setPassword("");
 				break;
 			case 'o':
-				clientToHandle = channel->getClient(extra);
-				if (channel->isClientOnChannel(extra) && channel->isOperator(clientToHandle) && client.getNickname() != extra)
+				clientToHandle = channel->getClientPtr(extra);
+				std::cout << "extra: " << extra << std::endl;
+				std::cout << "client to handle: " << clientToHandle << std::endl;
+				std::cout << "clientToHandle: " << channel->isClientOnChannel(extra) << std::endl;
+				std::cout << "isOperator: " << channel->isOperator(extra) << std::endl;
+				std::cout << "client.getNickname(): " << client.getNickname() << std::endl;
+				if (channel->isClientOnChannel(extra) && channel->isOperator(extra) && client.getNickname() != extra)
 				{
 					clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " -o " + extra + "\r\n";
 					channel->deleteOperatorClient(extra);
 				}
 				else
-					clientMsg = "441 " + client.getNickname() + " " + extra + " :user is not in this channel or is not operator or you can't use it on yourself\r\n";
+					clientMsg = "ERROR " + client.getNickname() + " " + extra + " :user is not in this channel or is not operator or you can't use it on yourself\r\n";
 				break;
 			case 'l':
 				clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " -l\r\n";

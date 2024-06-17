@@ -59,3 +59,9 @@ ok  -cn nc la seconda volta che si manda il privmsg non funziona, rmane appeso u
  - con nc se mi auto elimino o provo a eliminare un utente da un canale esplode 
  - segfault e esplode se mandi spazi vuoti al bot (ho provato non scoppia, mi farai vedere)
 ok -con nc rivedere controlli sui parametri passati (esempio se faccio join nick #canale esplode perche i paramentri ono invertiti)
+
+
+kick
+invite
+-o
++k password

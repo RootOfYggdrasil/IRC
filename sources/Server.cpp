@@ -328,7 +328,8 @@ void	Server::Run()
 					newCL = getClientComparingfFd(clientFdSocket);
 					memset(buff, 0, sizeof(buff));
 					int incomingBytes = recv(clientFdSocket, buff, sizeof(buff), 0);
-					std::cout << "Message from client <" << clientFdSocket << ">: " << buff << std::endl;
+					if (buff[0])
+						std::cout << "Message from client <" << clientFdSocket << ">: " << buff << std::endl;
 					if(incomingBytes <= 0)
 					{
 						std::cout << "Disconnecting" << newCL << std::endl;
