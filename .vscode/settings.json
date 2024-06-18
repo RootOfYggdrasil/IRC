@@ -51,6 +51,7 @@
 		"ranges": "cpp",
 		"sstream": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"numbers": "cpp"
 	}
 }

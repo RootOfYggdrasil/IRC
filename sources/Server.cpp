@@ -74,8 +74,6 @@ Se non trova nessun client con l'fd specificato, restituisce NULL.*/
 Client* Server::getClientComparingfFd(int file) const {
 
     // Search in the _clients map
-
-	std::cout << file << std::endl;
     std::map<std::string, Client*>::const_iterator itstart = this->_clients.begin();
     
 	while (itstart != this->_clients.end()) {
@@ -351,14 +349,15 @@ void	Server::Run()
 					}
 				}
 			}
-			std::cout << std::endl << std::endl;
+			std::cout << std::endl;
 		}
 	}
 	std::cout << "Server is deleting things" << std::endl;
 	for(std::list<Client *>::iterator it = this->_newCltoRegister.begin(); it != this->_newCltoRegister.end(); ++it)
 	{
+		std::string msg = ":ircserv QUIT : Server not connect\r\n";
 		std::cout << "Deleting client: " << (*it)->getNickname() << std::endl;
-		send((*it)->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+		send((*it)->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, (*it)->getFd(), NULL);
 	
 		if((*it)->getFd() >= 0)
@@ -370,8 +369,9 @@ void	Server::Run()
 	}
 	for(std::map<std::string, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
+		std::string msg = ":ircserv QUIT : Server not connect\r\n";
 		std::cout << "Deleting client: " << it->second->getNickname() << std::endl;	
-		send(it->second->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+		send(it->second->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, it->second->getFd(), NULL);
 		if(it->second->getFd() >= 0)
 		{
@@ -432,8 +432,9 @@ void Server::deleteAllClients()
 	{
 		if (it->second)
 		{
+			std::string msg = ":ircserv QUIT : Server not connect\r\n";
 			std::cout << "Deleting client: " << it->second << std::endl;
-			send(it->second->getFd(), ":ircserv QUIT : Server not connect\r\n", 42, MSG_DONTWAIT | MSG_NOSIGNAL);
+			send(it->second->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 			delete it->second;
 		}
 	}

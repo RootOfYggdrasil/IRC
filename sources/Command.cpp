@@ -128,6 +128,11 @@ void	Command::join(Server &server, Client &client, std::vector<std::string> &vAr
 		clientMsg = "461 " + client.getNickname() + " JOIN :Not enough parameters\r\n";
 		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 	}
+	else if (vectorSize == 1 && vArguments[0][0] != '#')
+	{
+		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
+		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+	}
 	else if (vectorSize == 1)
 	{
 		std::istringstream channels(vArguments[0]);
@@ -144,6 +149,7 @@ void	Command::join(Server &server, Client &client, std::vector<std::string> &vAr
 		std::istringstream passwords(vArguments[1]);
 		while (std::getline(channels, channelName, ','))
 		{
+			std::getline(passwords, password, ',');
 			addClientToChannel(server, client, channelName, password);
 		}
 	}
@@ -277,7 +283,7 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 	if (!channel)
 		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
 	else if (!channel->isClientOnChannel(client.getNickname()))
-		clientMsg = "441 " + client.getNickname() + " " + vArguments[0] + " :You're not on that channel\r\n";
+		clientMsg = "ERROR " + client.getNickname() + " " + vArguments[0] + " :You're not on that channel\r\n";
 	else if (!channel->isOperator(client))
 		clientMsg = "482 " + client.getNickname() + " " + channel->getName() + "\r\n";
 	else
@@ -285,16 +291,18 @@ void	Command::kick(Server &server, Client &client, std::vector<std::string> &vAr
 		Client *clientToKick = server.getClient(vArguments[1]);
 		if (!clientToKick)
 			clientMsg = "401 " + client.getNickname() + " " + vArguments[1] + " :No such nick\r\n";
+		else if (client.getNickname() == clientToKick->getNickname())
+			clientMsg = "ERROR " + client.getNickname() + " " + vArguments[1] + " :You can't kick yourself\r\n";
 		else
 		{
-			channel->deleteClient(clientToKick);
 			clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost KICK " + channel->getName() + " " + clientToKick->getNickname() + "\r\n";
 			channel->sendToAllClients(clientMsg);
+			channel->deleteClient(clientToKick);
 			return;
 		}
 	}
 	send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-	if (channel->getClientCount() == 0)
+	if (channel && channel->getClientCount() == 0)
 		server.deleteChannel(channel->getName());
 }
 
