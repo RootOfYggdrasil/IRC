@@ -507,12 +507,10 @@ void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArg
 	channel = client.getChannel(vArguments[1]);
 	clientToInvite = server.getClient(vArguments[0]);
 
-	if (!clientToInvite)
+	if (!clientToInvite || !channel)
 		clientMsg = "401 " + client.getNickname() + " " + vArguments[0] + " :No such nick\r\n";
 	else if(channel->isClientOnChannel(clientToInvite->getNickname()))
 		clientMsg = "443 " + client.getNickname() + " " + vArguments[0] + " " + channel->getName() + " :is already on channel\r\n";
-	else if(channel)
-		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel \r\n";
 	else if (channel->isClientOnChannel(client.getNickname()) == false)
 		clientMsg = "442 " + client.getNickname() + " " + channel->getName() + " :You're not on that channel \r\n";
 	else if (channel->isOperator(client) == false)
