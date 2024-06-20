@@ -343,19 +343,20 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 {
 	(void)server;
 	std::string clientMsg = "";
-	Channel *channel = client.getChannel(vArguments[0]);
-	if(!channel)
-		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
 	if(vArguments.size() == 0)
 	{
-		channel->getTopic() == "" ?
-		clientMsg = "331 " + client.getNickname() + " " + vArguments[0] + " :No topic is set\r\n" :
-		clientMsg = "332 " + client.getNickname() + " #" + channel->getName() + " :" + channel->getTopic() + "\r\n";
+		//channel->getTopic() == "" ?
+		//clientMsg = "331 " + client.getNickname() + " " + vArguments[0] + " :No topic is set\r\n" :
+		//clientMsg = "332 " + client.getNickname() + " #" + channel->getName() + " :" + channel->getTopic() + "\r\n";
+		clientMsg = "ERROR Topic need a parameter\r\n";
 		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		return;
 	}
+	Channel *channel = client.getChannel(vArguments[0]);
+	if(!channel)
+		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
 	else if(channel->getTopicRestrict() && !channel->isOperator(client))
-		return;// da vdere l'errore
+		return;
 	else
 	{
 		channel->setTopic(vArguments);
