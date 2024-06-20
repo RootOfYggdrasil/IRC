@@ -3,7 +3,7 @@
 
 char hostname[1024] = {};
 
-Server::Server(in_port_t port, std::string password) : _port(port), _password(password), _serverSocket(0), _fdCounter(4), _okPw(password.compare("") != 0) 
+Server::Server(in_port_t port, std::string password) : _port(port), _password(password), _serverSocket(0), _fdCounter(4), _okPw(password.compare("") != 0)
 {
 	srand(time(0));
 	_commands["QUIT"] = &Command::quit;
@@ -68,16 +68,16 @@ void	Server::deleteChannel(const std::string &nameChannel)
 	}
 }
 
-/*cerca un Client con un fd specificato prima nella mappa _clients e poi nella lista _newClient_toRegister. 
+/*cerca un Client con un fd specificato prima nella mappa _clients e poi nella lista _newClient_toRegister.
 Se trova il client, restituisce il puntatore a quell'oggetto Client.
 Se non trova nessun client con l'fd specificato, restituisce NULL.*/
 Client* Server::getClientComparingfFd(int file) const {
 
     // Search in the _clients map
     std::map<std::string, Client*>::const_iterator itstart = this->_clients.begin();
-    
+
 	while (itstart != this->_clients.end()) {
-		if (itstart->second && itstart->second->getFd() == file) 
+		if (itstart->second && itstart->second->getFd() == file)
        		return itstart->second;
 		++itstart;
     }
@@ -145,14 +145,14 @@ void Server::handleCommand(Client &client, std::vector<std::string> pVector)
 	pVector.erase(pVector.begin());
 	if (it != this->_commands.end())
 	{
-		this->_commands[cmd](*this, client, pVector);  
+		this->_commands[cmd](*this, client, pVector);
 	}
 }
 
 void Server::registerNotLogged(Client &client, std::vector<std::string> pVector)
 {
 	std::string cmd;
-	
+
 	if (!pVector.size())
 		return;
 	cmd = pVector[0];
@@ -206,7 +206,7 @@ void Server::handleMessage(Client &client, const char *msg)
 		std::string line;
 		std::istringstream iss(message);
 		std::getline(iss, line);
-		std::cout << "Line: " << line << std::endl;	
+		std::cout << "Line: " << line << std::endl;
 		std::vector<std::string> commands = splitCmd(line);
 		if (commands.size() == 0)
 			break;
@@ -214,7 +214,7 @@ void Server::handleMessage(Client &client, const char *msg)
 		if (client.getIsLogged())
 		{
 			handleCommand(client, commands);
-		}	
+		}
 		else
 		{
 			registerNotLogged(client, commands);
@@ -228,7 +228,7 @@ void Server::handleMessage(Client &client, const char *msg)
 void	Server::InitializeServer(void)
 {
 	int e = 1;
-	
+
 	signal(SIGINT, checkSignal);
 	signal(SIGQUIT, checkSignal);
 
@@ -252,13 +252,13 @@ void	Server::InitializeServer(void)
 	/*strarting epoll*/
 	this->_epollFD = epoll_create1(0);
 	if(this->_epollFD == -1)
-		throw std::runtime_error("ERROR: epoll creation failed");	
+		throw std::runtime_error("ERROR: epoll creation failed");
 	memset(&_ev, 0, sizeof(epoll_event));
 	this->_ev.events = EPOLLIN;
 	this->_ev.data.fd = this->_serverSocket;
 	if(epoll_ctl(this->_epollFD, EPOLL_CTL_ADD, this->_serverSocket, &this->_ev) == -1)
 		throw std::runtime_error("ERROR: epoll ctl failed");
-	_fdCounter++;	
+	_fdCounter++;
 
 	this->_isInitialized = true;
 	std::cout << "Server Initialized on port " << this->_port << std::endl;
@@ -286,10 +286,10 @@ void	Server::Run()
 			for(int i = 0; i < eventNumber; i++)
 			{
 				//if the event is on the server socket
-				if(this->_maxEvents[i].data.fd == this->_serverSocket) 
+				if(this->_maxEvents[i].data.fd == this->_serverSocket)
 				{
 					newFdSocket = accept(this->_serverSocket, NULL, NULL);
-					
+
 					if(this->_fdCounter >= 1024 - 1)
 					{
 						std::cout << "fdcounter: " << this->_fdCounter << std::endl;
@@ -307,7 +307,7 @@ void	Server::Run()
 						throw std::runtime_error("ERROR: epoll ctl failed");
 					std::cout << "New Client Connected: " << newFdSocket << std::endl;
 					this->_fdCounter++;
-					
+
 					//fd of non registered client insert in the list
 					Client *newClient = new Client(newFdSocket);
 					if (newClient)
@@ -341,7 +341,7 @@ void	Server::Run()
 							this->_clients.erase(newCL->getNickname());
 							delete newCL;
 						}
-						//remove client from _clients map	
+						//remove client from _clients map
 					}
 					else if (newCL)
 					{
@@ -359,7 +359,7 @@ void	Server::Run()
 		std::cout << "Deleting client: " << (*it)->getNickname() << std::endl;
 		send((*it)->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, (*it)->getFd(), NULL);
-	
+
 		if((*it)->getFd() >= 0)
 		{
 			this->_fdCounter--;
@@ -370,7 +370,7 @@ void	Server::Run()
 	for(std::map<std::string, Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
 	{
 		std::string msg = ":ircserv QUIT : Server not connect\r\n";
-		std::cout << "Deleting client: " << it->second->getNickname() << std::endl;	
+		std::cout << "Deleting client: " << it->second->getNickname() << std::endl;
 		send(it->second->getFd(), msg.c_str(), msg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 		epoll_ctl(this->_epollFD, EPOLL_CTL_DEL, it->second->getFd(), NULL);
 		if(it->second->getFd() >= 0)

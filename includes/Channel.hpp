@@ -57,6 +57,7 @@ class Channel {
 
 		bool	isOperator(Client &client);
 		bool	isOperator(std::string nickname);
+		bool	isClientInvited(Client &client);
 		void	addClient(Client *client);
 		void 	sendToAllClients(const std::string &msg);
 		void	deleteClient(Client *client);
@@ -73,7 +74,7 @@ class Channel {
 		int		getClientCount();
 		Client	getClient(std::string nickname);
 		Client	*getClientPtr(std::string nickname);
-}; 
+};
 
 std::ostream &operator<<(std::ostream &o, Channel &ch);
 std::ostream &operator<<(std::ostream &o, Channel *ch);

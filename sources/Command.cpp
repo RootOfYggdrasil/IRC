@@ -60,7 +60,17 @@ void	addClientToChannel(Server &server, Client &client, std::string channelName,
 		//canale pieno
 	if (channel->getPassword() == password)
 	{
-		if (!channel->getInviteOnly() || (channel->getClientCount() == channel->getClientsMax() && channel->getClientsMax() > 0))
+		if (channel->getInviteOnly() && !channel->isClientInvited(client))
+		{
+			clientMsg = "473 " + client.getNickname() + " " + channelName + " :Cannot join channel, InviteOnly channel!\r\n";
+			send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		}
+		else if (channel->getClientsMax() > 0 && channel->getClientCount() >= channel->getClientsMax())
+		{
+			clientMsg = "473 " + client.getNickname() + " " + channelName + " :Cannot join channel, Full channel!\r\n";
+			send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		}
+		else
 		{
 			channel->addClient(&client);
 			client.addChannel(channel);
@@ -78,11 +88,11 @@ void	addClientToChannel(Server &server, Client &client, std::string channelName,
 			}
 			send(client.getFd(), RPL_NAMREPLY.c_str(), RPL_NAMREPLY.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 			send(client.getFd(), RPL_ENDOFNAMES.c_str(), RPL_ENDOFNAMES.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-		}
-		else
-		{
-			clientMsg = "473 " + client.getNickname() + " " + channelName + " :Cannot join channel, InviteOnly channel!\r\n";
-			send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+			if (channel->isClientInvited(client))
+			{
+				channel->removeInvitedClient(&client);
+			}
+
 		}
 	}
 	else
@@ -106,7 +116,7 @@ void	Command::bot(Server &s, Client &client, std::vector<std::string> &vArgument
 	{
 		if(vArguments[0].compare("truth") == 0)
 			replyMsg = ":" + client.getNickname() + " EL_PIPO " + "Tell me your worst secret\r\n";
-		else if(vArguments[0].compare("dare") == 0) 
+		else if(vArguments[0].compare("dare") == 0)
 			replyMsg = ":" + client.getNickname() + " EL_PIPO " +  "You have to buy me a coffe\r\n";
 		else if (vArguments[0].compare("Pacciani") == 0)
 			replyMsg = ":" + client.getNickname() + " EL_PIPO " +  phrasePacciani[rand() % 6] + "\r\n";
@@ -119,7 +129,7 @@ void	Command::bot(Server &s, Client &client, std::vector<std::string> &vArgument
 }
 
 void	Command::join(Server &server, Client &client, std::vector<std::string> &vArguments)
-{	
+{
 	std::string clientMsg = "", password = "", channelName = "";
 	size_t	vectorSize = vArguments.size();
 
@@ -138,11 +148,10 @@ void	Command::join(Server &server, Client &client, std::vector<std::string> &vAr
 		std::istringstream channels(vArguments[0]);
 		while (std::getline(channels, channelName, ','))
 		{
-			//add user to channel with no password
 			std::string password = "";
 			addClientToChannel(server, client, channelName, password);
-		}	
-	}	
+		}
+	}
 	else if (vectorSize == 2)
 	{
 		std::istringstream channels(vArguments[0]);
@@ -174,11 +183,11 @@ std::vector<std::string> split(const std::string& str, char delimiter) {
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;
-    
+
     while (std::getline(ss, token, delimiter)) {
         tokens.push_back(token);
     }
-    
+
     return tokens;
 }
 
@@ -189,7 +198,7 @@ void	sendMsgToChannel(Server &server, Client &client, std::string channelName, s
 	if (channel == NULL)
 		clientMsg = "403 " + client.getNickname() + " " + channelName + " :No such channel\r\n";
 	else if (!channel->isClientOnChannel(client.getNickname()))
-		clientMsg = "442 " + client.getNickname() + " " + channelName + " :You're not on that channel\r\n";	
+		clientMsg = "442 " + client.getNickname() + " " + channelName + " :You're not on that channel\r\n";
 	else
 	{
 		std::vector<Client *> clientToMsg = channel->getLoggedClients(client);
@@ -240,7 +249,7 @@ void	Command::privmsg(Server &server, Client &client, std::vector<std::string> &
 			sendMsgToChannel(server, client, target[i], vArguments[1]);
 		else
 			sendMsgToClient(server, client, target[i], vArguments[1]);
-	}	
+	}
 }
 
 bool	isValidNick(std::string nickname)
@@ -319,7 +328,7 @@ void	Command::quit(Server &server, Client &client, std::vector<std::string> &vAr
 	{
 		clientMsg = ":" + client.getNickname() + " QUIT :Quitted \r\n";
 		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-		
+
 		if (client.getIsLogged())
 		{
 			client.setIsLogged(false);
@@ -340,7 +349,7 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 		clientMsg = "403 " + client.getNickname() + " " + vArguments[0] + " :No such channel\r\n";
 	if(vArguments.size() == 0)
 	{
-		channel->getTopic() == "" ? 
+		channel->getTopic() == "" ?
 		clientMsg = "331 " + client.getNickname() + " " + vArguments[0] + " :No topic is set\r\n" :
 		clientMsg = "332 " + client.getNickname() + " #" + channel->getName() + " :" + channel->getTopic() + "\r\n";
 		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
@@ -357,7 +366,7 @@ void	Command::topic(Server &server, Client &client, std::vector<std::string> &vA
 	if (clientMsg.find("332") != std::string::npos)
 		channel->sendToAllClients(clientMsg);
 	else
-			send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);	
+			send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
 }
 
 void	handleModeOption(Client &client, std::string channelName, std::string mode, std::string extra)
@@ -388,8 +397,9 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 				break;
 			case 'o':
 				clientToHandle = channel->getClientPtr(extra);
-				std::cout << "clientToHandle: " << clientToHandle << std::endl;
-				if (channel->isClientOnChannel(extra) && !channel->isOperator(clientToHandle->getNickname()))
+				if (clientToHandle == NULL)
+					clientMsg = "ERROR " + extra + " :user is not in this channel\r\n";
+				else if (channel->isClientOnChannel(extra) && !channel->isOperator(clientToHandle->getNickname()))
 				{
 					clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " +o " + extra + "\r\n";
 					channel->addOperatorClient(extra);
@@ -426,18 +436,15 @@ void	handleModeOption(Client &client, std::string channelName, std::string mode,
 				break;
 			case 'o':
 				clientToHandle = channel->getClientPtr(extra);
-				std::cout << "extra: " << extra << std::endl;
-				std::cout << "client to handle: " << clientToHandle << std::endl;
-				std::cout << "clientToHandle: " << channel->isClientOnChannel(extra) << std::endl;
-				std::cout << "isOperator: " << channel->isOperator(extra) << std::endl;
-				std::cout << "client.getNickname(): " << client.getNickname() << std::endl;
-				if (channel->isClientOnChannel(extra) && channel->isOperator(extra) && client.getNickname() != extra)
+				if (clientToHandle == NULL)
+					clientMsg = "ERROR :user "  + extra +  " is not in this channel\r\n";
+				else if (channel->isClientOnChannel(extra) && channel->isOperator(extra) && client.getNickname() != extra)
 				{
 					clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " -o " + extra + "\r\n";
 					channel->deleteOperatorClient(extra);
 				}
 				else
-					clientMsg = "ERROR " + client.getNickname() + " " + extra + " :user is not in this channel or is not operator or you can't use it on yourself\r\n";
+					clientMsg = "ERROR :user "  + extra +  " is not operator or you can't use it on yourself\r\n";
 				break;
 			case 'l':
 				clientMsg = ":" + client.getNickname() + "!" + client.getUsername() + "@localhost MODE " + channel->getName() + " -l\r\n";
@@ -498,7 +505,7 @@ void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArg
 	std::string clientMsg = "";
 	Client *clientToInvite = NULL;
 	Channel *channel = NULL;
-	
+
 	if (vArguments.size() < 2)
 	{
 		clientMsg = "461 " + client.getNickname() + " INV :Not enough parameters\r\n";

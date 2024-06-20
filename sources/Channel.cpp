@@ -174,6 +174,11 @@ bool	Channel::isOperator(std::string nickname)
 	return (this->_operatorClients.find(nickname) != this->_operatorClients.end());
 }
 
+bool	Channel::isClientInvited(Client &client)
+{
+	return (this->_invitedClients.find(client.getNickname()) != this->_invitedClients.end());
+}
+
 void	Channel::addClient(Client *client)
 {
 	if (client && this->_clients.find(client->getNickname()) == this->_clients.end())
@@ -272,7 +277,6 @@ void	Channel::removeInvitedClient(Client *client)
 	if (it != this->_invitedClients.end())
 		this->_invitedClients.erase(it);
 }
-
 
 std::ostream &operator<<(std::ostream &o, Channel &ch)
 {
