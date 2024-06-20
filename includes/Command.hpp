@@ -35,6 +35,3 @@ class Command {
 
 #endif
 
-
-//DA FARE gestire errori dei vari comandi 
-

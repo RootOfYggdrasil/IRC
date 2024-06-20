@@ -337,7 +337,6 @@ void	Command::quit(Server &server, Client &client, std::vector<std::string> &vAr
 		//{ chiudere fd}
 	}
 
-	//va segnalato che un client si disconnette???
 }
 
 void	Command::topic(Server &server, Client &client, std::vector<std::string> &vArguments)

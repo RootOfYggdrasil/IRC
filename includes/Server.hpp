@@ -101,6 +101,4 @@ class Server {
 
 
 /*Un socket è un canale di comunicazione che consente il trasferimento di dati tra computer.
-Creando un punto di connessione tra due computer, è possibile inviare e ricevere dati da 
-questo punto. Ogni computer ha un indirizzo IP e un socket comunica tramite questo indirizzo 
-IP su una porta specifica*/
+ Ogni computer ha un indirizzo IP e un socket comunica tramite questo su una porta specifica*/

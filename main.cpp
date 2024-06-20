@@ -13,7 +13,7 @@ in_port_t	portChecker(std::string string)
 		}
 	}
 	int port = atoi(string.c_str());
-	if (port < 0 || port > 65535) //< o <= 0???
+	if (port < 0 || port > 65535) 
 	{
 		std::cerr << "Invalid port" << std::endl;
 		exit(EXIT_FAILURE);
