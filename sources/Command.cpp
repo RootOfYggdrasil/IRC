@@ -510,6 +510,7 @@ void	Command::inv(Server &server, Client &client, std::vector<std::string> &vArg
 	{
 		clientMsg = "461 " + client.getNickname() + " INV :Not enough parameters\r\n";
 		send(client.getFd(), clientMsg.c_str(), clientMsg.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
+		return	;
 	}
 	channel = client.getChannel(vArguments[1]);
 	clientToInvite = server.getClient(vArguments[0]);
